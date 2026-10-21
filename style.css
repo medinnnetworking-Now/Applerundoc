@@ -75,6 +75,14 @@ label.nm{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--apple-dark)}
 .btn.alt{background:var(--curtain);box-shadow:0 5px 0 #06201f;font-size:17px}
 .btn.alt:active{box-shadow:0 1px 0 #06201f}
+a.btn{text-align:center;text-decoration:none}
+.btn.cta{background:var(--ok);color:var(--ink);box-shadow:0 5px 0 #15803d;animation:nudge 1.6s ease-in-out infinite}
+.btn.cta:active{box-shadow:0 1px 0 #15803d}
+.redirect{margin:9px 0 0;font-size:13.5px;font-weight:600;text-align:center;opacity:.8}
+.redirect button{background:none;border:0;padding:0;font:inherit;font-weight:800;color:var(--curtain);text-decoration:underline;cursor:pointer}
+.medico{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;border-radius:12px;
+  background:var(--scrub);color:var(--curtain);text-decoration:none;font-size:13.5px;font-weight:600}
+.medico .arr{font-family:var(--display);font-size:13px;color:var(--apple);white-space:nowrap}
 .rules{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;line-height:1.35}
 .rules li{display:flex;gap:9px;padding:5px 0;border-bottom:1.5px dotted rgba(15,63,66,.25)}
 .rules b{flex:none;min-width:74px;font-family:var(--display);font-weight:400;color:var(--apple);font-size:13px}
@@ -135,6 +143,7 @@ dl.rx div.tot{border-top:2.5px solid var(--curtain);margin-top:4px;padding-top:9
 #pad .up{grid-area:up}#pad .left{grid-area:left}#pad .down{grid-area:down}#pad .right{grid-area:right}
 @media (pointer:coarse){#pad{display:flex}}
 
+@keyframes nudge{50%{transform:scale(1.03)}}
 @keyframes pop{from{transform:scale(.92) translateY(8px);opacity:0}to{transform:none;opacity:1}}
 @keyframes shake{20%{transform:translateX(-7px)}45%{transform:translateX(6px)}70%{transform:translateX(-4px)}100%{transform:none}}
 @keyframes pulse{50%{transform:scale(1.35)}}

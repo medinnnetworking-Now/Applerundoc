@@ -76,9 +76,27 @@ const loadLB = () => { try { return JSON.parse(localStorage.getItem(LB_KEY)) || 
 const saveLB = a => { try { localStorage.setItem(LB_KEY, JSON.stringify(a)); } catch(e){} };
 try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 
+// Shared board lives at /api/scores (Vercel Blob). If it can't be reached, the board falls back to this device.
+const API = '/api/scores';
+let sharedLB = null;
+async function api(method, body){
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+  try{
+    const r = await fetch(API + (method==='GET' ? '?limit=8' : ''), {method, signal:ctl.signal, cache:'no-store',
+      headers: body ? {'Content-Type':'application/json'} : undefined, body: body ? JSON.stringify(body) : undefined});
+    if(!r.ok) throw new Error(r.status);
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+async function fetchLB(){ try{ sharedLB = (await api('GET')).scores; }catch(e){ sharedLB = null; } return sharedLB; }
+async function submitScore(entry){
+  try{ const d = await api('POST', {name:entry.name, score:entry.score, right:entry.right, time:entry.time}); sharedLB = d.scores; return d.id; }
+  catch(e){ return null; }
+}
+
 function renderLB(el, meId){
   el.innerHTML = '';
-  const lb = loadLB().slice(0,8);
+  const lb = (sharedLB || loadLB()).slice(0,8);
   if(!lb.length){
     const li = document.createElement('li'); li.style.background='none';
     const s = document.createElement('span'); s.className='nm'; s.style.cssText='font-weight:500;opacity:.7';
@@ -91,6 +109,28 @@ function renderLB(el, meId){
     el.appendChild(li);
   });
 }
+
+/* =====================================================================
+   The Medico app funnel
+   ===================================================================== */
+const INSTALL_URL = 'https://themedico.app/?utm_source=apple-a-day&utm_medium=stall&utm_campaign=game#install';
+const REDIRECT_SECS = 15;
+let redirectTimer = null, redirectLeft = 0;
+function goInstall(){ stopRedirect(); location.href = INSTALL_URL; }
+function stopRedirect(){
+  if(redirectTimer){ clearInterval(redirectTimer); redirectTimer = null; }
+  $('redirectNote').hidden = true;
+}
+function startRedirect(){
+  stopRedirect(); redirectLeft = REDIRECT_SECS;
+  const note = $('redirectNote'), secs = $('redirectSecs');
+  secs.textContent = redirectLeft; note.hidden = false;
+  redirectTimer = setInterval(() => {
+    redirectLeft--; secs.textContent = Math.max(0, redirectLeft);
+    if(redirectLeft <= 0) goInstall();
+  }, 1000);
+}
+document.querySelectorAll('a.install').forEach(a => { a.href = INSTALL_URL; a.addEventListener('click', stopRedirect); });
 
 /* =====================================================================
    Audio
@@ -283,6 +323,7 @@ function reset(){
 }
 
 function startGame(){
+  stopRedirect();
   try{ localStorage.setItem(NAME_KEY, nameEl.value.trim()); }catch(e){}
   titleScr.classList.remove('on'); resultScr.classList.remove('on'); mcqScr.classList.remove('on');
   reset(); state = 'countdown'; cdT = 0; lastCd = 4;
@@ -330,6 +371,7 @@ document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointe
 $('go').onclick = startGame;
 $('again').onclick = startGame;
 $('mcqNext').onclick = () => proceed();
+$('stay').onclick = stopRedirect;
 $('share').onclick = async () => {
   const f = finalTotals; if(!f) return;
   const txt = `I scored ${f.total} as ${f.rank} in An Apple a Day: ${f.right}/${TOTAL} questions right, all ${TOTAL} doctors caught. Beat that.`;
@@ -489,7 +531,8 @@ function win(){
   const lb = loadLB();
   const entry = {id:Date.now()+'-'+Math.random().toString(36).slice(2,6), name:(nameEl.value.trim()||'Apple'), score:total, right:rightN, time:chaseTime};
   lb.push(entry); lb.sort((a,b)=>b.score-a.score || a.time-b.time); saveLB(lb.slice(0,25));
-  setTimeout(() => {
+  const sent = submitScore(entry);
+  setTimeout(async () => {
     $('rWho').textContent = entry.name; $('rRank').textContent = rank;
     $('rTotal').innerHTML = `${total}<small>pts</small>`;
     $('rCatch').textContent = catchPts;
@@ -499,6 +542,9 @@ function win(){
     $('rSum').textContent = total;
     renderLB($('lb2'), entry.id);
     resultScr.classList.add('on');
+    startRedirect();
+    const sharedId = await sent;
+    renderLB($('lb2'), sharedId || entry.id);
   }, 1000);
 }
 
@@ -649,6 +695,8 @@ document.addEventListener('visibilitychange', () => { last = performance.now(); 
 
 if(/[?&]debug\b/.test(location.search)) window.__g = { get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
 resize(); reset(); state = 'title'; renderLB($('lb1'));
+fetchLB().then(() => renderLB($('lb1')));
+setInterval(() => { if(titleScr.classList.contains('on')) fetchLB().then(() => renderLB($('lb1'))); }, 15000);
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
 requestAnimationFrame(frame);
 })();
