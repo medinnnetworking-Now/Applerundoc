@@ -32,18 +32,7 @@ const DIRS = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
 const open = (x,y) => x>=0 && x<W && y>=0 && y<H && MAZE[y][x] !== '#';
 const exitsAt = (x,y) => DIRS.reduce((n,d)=>n+(open(x+d.x,y+d.y)?1:0),0);
 
-const SUBJECTS = [
-  {k:'anatomy',  label:'Anatomy',            doc:'Dr. Bones',    color:'#f97316', icon:'🦴'},
-  {k:'biochem',  label:'Biochemistry',       doc:'Dr. Enzyme',   color:'#eab308', icon:'🧪'},
-  {k:'physio',   label:'Physiology',         doc:'Dr. Pulse',    color:'#3b82f6', icon:'🫀'},
-  {k:'patho',    label:'Pathology',          doc:'Dr. Slide',    color:'#8b5cf6', icon:'🔬'},
-  {k:'micro',    label:'Microbiology',       doc:'Dr. Culture',  color:'#22c55e', icon:'🦠'},
-  {k:'pharma',   label:'Pharmacology',       doc:'Dr. Dose',     color:'#ec4899', icon:'💊'},
-  {k:'spm',      label:'Community Medicine', doc:'Dr. Outbreak', color:'#06b6d4', icon:'🌍'},
-  {k:'forensic', label:'Forensic Medicine',  doc:'Dr. Autopsy',  color:'#475569', icon:'🔍'},
-  {k:'ent',      label:'ENT',                doc:'Dr. Otoscope', color:'#b45309', icon:'👂'},
-  {k:'ophthal',  label:'Ophthalmology',      doc:'Dr. Retina',   color:'#84cc16', icon:'👁️'},
-];
+const { SUBJECTS, drawApple, drawDoctor, rrect } = window.RR;
 const TOTAL = SUBJECTS.length;
 const SPAWNS = [[9,7],[8,9],[10,9],[9,9]];
 const ACTIVE_MAX = 4;
@@ -209,48 +198,6 @@ function buildBG(){
   g.fillStyle = v; g.fillRect(0,0,cw,ch);
 }
 
-/* =====================================================================
-   Sprites (size-agnostic: take a context and a tile size)
-   ===================================================================== */
-function drawApple(g,T,cx,cy,ang,open,t,sc=1){
-  const r = T*.44*sc, mouth = open*Math.PI;
-  g.save(); g.translate(cx,cy);
-  g.fillStyle = '#e5383b'; g.strokeStyle = '#7a1013'; g.lineWidth = Math.max(1.5,T*.06); g.lineJoin='round';
-  g.beginPath(); g.moveTo(0,0); g.arc(0,0,r,ang+mouth,ang+Math.PI*2-mouth); g.closePath(); g.fill(); g.stroke();
-  g.fillStyle = 'rgba(255,255,255,.38)'; g.beginPath(); g.ellipse(-r*.42,-r*.42,r*.15,r*.26,-.7,0,Math.PI*2); g.fill();
-  g.strokeStyle = '#5b3a1c'; g.lineWidth = Math.max(2,T*.08); g.lineCap='round';
-  g.beginPath(); g.moveTo(0,-r*.9); g.quadraticCurveTo(r*.05,-r*1.2,r*.18,-r*1.3); g.stroke();
-  g.fillStyle = '#2f9e5b'; g.strokeStyle='#17592f'; g.lineWidth=Math.max(1,T*.04);
-  const sway = Math.sin(t*6)*r*.06;
-  g.beginPath(); g.moveTo(r*.12,-r*1.08); g.quadraticCurveTo(r*.5,-r*1.5+sway,r*.85,-r*1.1); g.quadraticCurveTo(r*.5,-r*.9,r*.12,-r*1.08); g.fill(); g.stroke();
-  const ex_ = Math.cos(ang-1.15)*r*.5, ey_ = Math.sin(ang-1.15)*r*.5;
-  g.fillStyle='#fff'; g.beginPath(); g.arc(ex_,ey_,r*.2,0,Math.PI*2); g.fill();
-  g.fillStyle='#111'; g.beginPath(); g.arc(ex_+Math.cos(ang)*r*.06,ey_+Math.sin(ang)*r*.06,r*.1,0,Math.PI*2); g.fill();
-  g.restore();
-}
-function rrect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
-function drawDoctor(g,T,cx,cy,color,icon,t,i,dir,sc=1,alpha=1){
-  const r = T*.44*sc, wob = Math.sin(t*13+i*2);
-  g.save(); g.globalAlpha = alpha; g.translate(cx, cy + wob*T*.02);
-  g.lineWidth = Math.max(1.5,T*.055); g.strokeStyle = '#0f3f42'; g.lineJoin='round';
-  g.fillStyle = '#334155';
-  g.beginPath(); g.ellipse(-r*.38, r*.98 + wob*r*.07, r*.28, r*.15, 0,0,Math.PI*2); g.fill();
-  g.beginPath(); g.ellipse( r*.38, r*.98 - wob*r*.07, r*.28, r*.15, 0,0,Math.PI*2); g.fill();
-  g.fillStyle = '#fbfdfc'; rrect(g,-r*.85,-r*.15,r*1.7,r*1.1,r*.42); g.fill(); g.stroke();
-  g.lineWidth=Math.max(1,T*.035); g.beginPath(); g.moveTo(0,-r*.12); g.lineTo(0,r*.9); g.stroke();
-  g.strokeStyle = '#1e293b'; g.lineWidth = Math.max(1.5,T*.05);
-  g.beginPath(); g.arc(0,-r*.05,r*.45,.2*Math.PI,.8*Math.PI); g.stroke();
-  g.fillStyle='#94a3b8'; g.beginPath(); g.arc(r*.3,r*.5,T*.055,0,Math.PI*2); g.fill(); g.stroke();
-  g.strokeStyle='#0f3f42'; g.lineWidth = Math.max(1.5,T*.055);
-  g.fillStyle = '#fcd9b6'; g.beginPath(); g.arc(0,-r*.45,r*.55,0,Math.PI*2); g.fill(); g.stroke();
-  g.fillStyle = color; g.beginPath(); g.arc(0,-r*.55,r*.58,Math.PI,0); g.closePath(); g.fill(); g.stroke();
-  if(icon){ g.font = `${Math.round(T*.26)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; g.textAlign='center'; g.textBaseline='middle'; g.fillStyle='#fff'; g.fillText(icon,0,-r*.86); }
-  const lx = dir.x*r*.05, ly = dir.y*r*.05;
-  g.fillStyle='#fff'; g.beginPath(); g.arc(-r*.22,-r*.38,r*.17,0,Math.PI*2); g.arc(r*.22,-r*.38,r*.17,0,Math.PI*2); g.fill();
-  g.fillStyle='#111'; g.beginPath(); g.arc(-r*.22+lx,-r*.38+ly,r*.08,0,Math.PI*2); g.arc(r*.22+lx,-r*.38+ly,r*.08,0,Math.PI*2); g.fill();
-  g.beginPath(); g.ellipse(0,-r*.1,r*.1,r*.13,0,0,Math.PI*2); g.fill();
-  g.restore();
-}
 const easeOutBack = t => { const c1=1.7, c3=c1+1; return 1 + c3*Math.pow(t-1,3) + c1*Math.pow(t-1,2); };
 
 /* =====================================================================
@@ -372,16 +319,132 @@ $('go').onclick = startGame;
 $('again').onclick = startGame;
 $('mcqNext').onclick = () => proceed();
 $('stay').onclick = stopRedirect;
-$('share').onclick = async () => {
+$('share').onclick = shareCard;
+
+/* =====================================================================
+   Challenge links + "Beat my time" share card
+   ===================================================================== */
+const BASE_URL = location.origin + location.pathname;
+const challenge = (() => {
+  const q = new URLSearchParams(location.search), t = parseFloat(q.get('beat'));
+  if(!(t > 0 && t < 10000)) return null;
+  return { time: t, by: (q.get('by') || 'A friend').replace(/[\u0000-\u001f<>]/g,'').slice(0,14) };
+})();
+const challengeURL = f => `${BASE_URL}?beat=${f.time.toFixed(1)}&by=${encodeURIComponent(f.name)}`;
+if(challenge){
+  $('challenge').hidden = false;
+  $('chBy').textContent = challenge.by; $('chTime').textContent = challenge.time.toFixed(1) + 's';
+}
+function beatLine(f){
+  if(!challenge) return '';
+  const d = challenge.time - f.time;
+  return d > 0 ? `You beat ${challenge.by} by ${d.toFixed(1)}s` : `${challenge.by} is still ${(-d).toFixed(1)}s ahead. Chase again.`;
+}
+
+const qrImg = new Image(); qrImg.src = 'qr.svg';
+function wrapText(g, text, x, y, maxW, lh){
+  let line = '';
+  for(const w of text.split(' ')){
+    const t = line ? line + ' ' + w : w;
+    if(g.measureText(t).width > maxW && line){ g.fillText(line, x, y); line = w; y += lh; } else line = t;
+  }
+  g.fillText(line, x, y);
+}
+function ecgLine(g, x0, x1, y, amp){
+  const gauss = (x,m,s,a) => a*Math.exp(-((x-m)*(x-m))/(2*s*s));
+  g.beginPath();
+  for(let x = x0; x <= x1; x += 2){
+    const f = ((x - x0) / 260) % 1;
+    const v = gauss(f,.12,.03,.14)+gauss(f,.215,.008,-.25)+gauss(f,.24,.011,1)+gauss(f,.268,.01,-.35)+gauss(f,.45,.05,.28);
+    x === x0 ? g.moveTo(x, y - v*amp) : g.lineTo(x, y - v*amp);
+  }
+  g.stroke();
+}
+async function drawCard(f){
+  try{ await Promise.all(['400 100px Bungee','800 40px Figtree','600 30px Figtree'].map(x => document.fonts.load(x))); }catch(e){}
+  if(!qrImg.complete) await new Promise(r => { qrImg.onload = qrImg.onerror = r; });
+  const Wc = 1080, Hc = 1350, cv = document.createElement('canvas'); cv.width = Wc; cv.height = Hc;
+  const g = cv.getContext('2d');
+  const bgr = g.createRadialGradient(Wc/2, 0, 60, Wc/2, 300, 1300);
+  bgr.addColorStop(0,'#14585a'); bgr.addColorStop(.45,'#0f3f42'); bgr.addColorStop(1,'#082a2c');
+  g.fillStyle = bgr; g.fillRect(0,0,Wc,Hc);
+
+  // wordmark + ECG
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.font = '400 128px Bungee, Impact, sans-serif';
+  const wa = g.measureText('RUNDOC').width, wb = g.measureText('RUN').width, wx = (Wc - wa - wb)/2;
+  g.textAlign = 'left';
+  g.fillStyle = '#f4faf7'; g.fillText('RUNDOC', wx, 170);
+  g.fillStyle = '#e5383b'; g.fillText('RUN', wx + wa, 170);
+  g.save(); g.strokeStyle = '#7cf5c8'; g.lineWidth = 5; g.lineJoin = 'round'; g.shadowColor = '#7cf5c8'; g.shadowBlur = 18;
+  ecgLine(g, 60, Wc-60, 262, 70); g.restore();
+
+  // triage-tag card
+  const cx = 64, cy = 312, cw_ = Wc - 128, ch_ = 984;
+  g.save(); g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 50; g.shadowOffsetY = 18;
+  g.fillStyle = '#f4faf7'; rrect(g, cx, cy, cw_, ch_, 48); g.fill(); g.restore();
+  g.save(); rrect(g, cx, cy, cw_, ch_, 48); g.clip();
+  g.fillStyle = '#e5383b'; g.fillRect(cx, cy, cw_, 96); g.restore();
+  g.fillStyle = 'rgba(7,31,33,.9)'; rrect(g, Wc/2 - 50, cy - 1, 100, 32, 16); g.fill();
+  g.fillStyle = '#fff'; g.font = '800 34px Figtree, system-ui, sans-serif';
+  g.textAlign = 'left'; g.fillText('Code red: doctor hunt', cx + 40, cy + 64);
+  g.textAlign = 'right'; g.fillText(f.name, cx + cw_ - 40, cy + 64);
+
+  g.textAlign = 'center';
+  g.fillStyle = '#0f3f42'; g.font = '400 64px Bungee, Impact, sans-serif'; g.fillText('BEAT MY TIME', Wc/2, cy + 196);
+  g.fillStyle = '#e5383b'; g.font = '400 210px Bungee, Impact, sans-serif'; g.fillText(f.time.toFixed(1) + 's', Wc/2, cy + 400);
+  g.fillStyle = '#071f21'; g.font = '800 42px Figtree, system-ui, sans-serif';
+  g.fillText(`${f.rank} · ${f.total} pts · ${f.right}/${TOTAL} right`, Wc/2, cy + 470);
+
+  // chase scene
+  const sx = cx + 40, sy = cy + 510, sw_ = cw_ - 80, sh = 190;
+  g.fillStyle = '#d9efe6'; rrect(g, sx, sy, sw_, sh, 28); g.fill();
+  g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 4; g.lineCap = 'round';
+  for(let x = sx + 40; x < sx + sw_; x += 64) for(const y of [sy + 34, sy + sh - 34]){
+    g.beginPath(); g.moveTo(x-8,y); g.lineTo(x+8,y); g.moveTo(x,y-8); g.lineTo(x,y+8); g.stroke();
+  }
+  const mid = sy + sh/2 + 8, T2 = 128;
+  [[.46,2],[.66,5],[.86,0]].forEach(([fx_, si], i) => { const s = SUBJECTS[si]; drawDoctor(g, T2, sx + sw_*fx_, mid, s.color, s.icon, 0, i, {x:1,y:0}); });
+  drawApple(g, T2, sx + sw_*.18, mid, 0, .2, 0);
+
+  // QR + call to action
+  const qy = cy + 740, qs = 196;
+  if(qrImg.naturalWidth){ g.fillStyle = '#fff'; rrect(g, sx, qy, qs, qs, 18); g.fill(); g.drawImage(qrImg, sx + 8, qy + 8, qs - 16, qs - 16); }
+  const tx = qrImg.naturalWidth ? sx + qs + 36 : sx;
+  g.textAlign = 'left'; g.fillStyle = '#0f3f42'; g.font = '400 50px Bungee, Impact, sans-serif'; g.fillText('Scan to play', tx, qy + 58);
+  g.fillStyle = '#071f21'; g.font = '600 31px Figtree, system-ui, sans-serif';
+  wrapText(g, 'You are the apple. Catch ten doctors, answer their questions, beat my time.', tx, qy + 106, cx + cw_ - 40 - tx, 40);
+
+  // barcode
+  g.fillStyle = 'rgba(7,31,33,.8)';
+  for(let x = cx + 40, i = 0; x < cx + cw_ - 40; i++){ const w = [2,1,3,2,1][i%5]; g.fillRect(x, cy + ch_ - 44, w, 26); x += w + [2,4,1,3,2][i%5]; }
+
+  g.textAlign = 'center'; g.fillStyle = 'rgba(244,250,247,.85)'; g.font = '700 30px Figtree, system-ui, sans-serif';
+  g.fillText('Brought to you by The Medico app · themedico.app', Wc/2, Hc - 18);
+  return new Promise(r => cv.toBlob(r, 'image/png'));
+}
+async function shareCard(){
   const f = finalTotals; if(!f) return;
-  const txt = `I scored ${f.total} as ${f.rank} in An Apple a Day: ${f.right}/${TOTAL} questions right, all ${TOTAL} doctors caught. Beat that.`;
+  stopRedirect();
+  const btn = $('share'), label = btn.textContent;
+  const url = challengeURL(f);
+  const txt = `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`;
+  btn.textContent = 'Making your card…';
   try{
-    if(navigator.share){ await navigator.share({title:'An Apple a Day', text:txt, url:location.href}); return; }
-    await navigator.clipboard.writeText(txt+' '+location.href);
-    $('share').textContent = 'Copied. Paste it anywhere.';
-    setTimeout(()=>$('share').textContent='Challenge a friend',2200);
+    const blob = await drawCard(f);
+    const file = new File([blob], 'rundocrun-beat-my-time.png', {type:'image/png'});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+      await navigator.share({files:[file], title:'RundocRun', text:`${txt} ${url}`});
+    } else {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      try{ await navigator.clipboard.writeText(`${txt} ${url}`); }catch(e){}
+      btn.textContent = 'Card saved. Link copied.';
+      setTimeout(() => btn.textContent = label, 2600);
+      return;
+    }
   }catch(e){}
-};
+  btn.textContent = label;
+}
 
 /* =====================================================================
    Chase logic
@@ -525,7 +588,7 @@ function win(){
   const timeBonus = Math.max(0, TIME_BASE - Math.round(chaseTime*TIME_RATE));
   const total = liveScore() + timeBonus;
   const rank = RANKS.find(r => total >= r[0])[1];
-  finalTotals = {total, rank, right: rightN, time: chaseTime, timeBonus};
+  finalTotals = {total, rank, right: rightN, time: chaseTime, timeBonus, name: nameEl.value.trim() || 'Apple'};
   sfx.win();
   if(!reduceMotion) for(let i=0;i<5;i++) setTimeout(()=>burst(3+Math.random()*(W-6), 3+Math.random()*(H-6), SUBJECTS[Math.floor(Math.random()*TOTAL)].color, 22), i*140);
   const lb = loadLB();
@@ -540,6 +603,7 @@ function win(){
     $('rSpeed').textContent = speedPts;
     $('rTimeL').textContent = `Time bonus (${chaseTime.toFixed(1)}s)`; $('rTime').textContent = timeBonus;
     $('rSum').textContent = total;
+    $('rBeat').textContent = beatLine(finalTotals); $('rBeat').hidden = !challenge;
     renderLB($('lb2'), entry.id);
     resultScr.classList.add('on');
     startRedirect();
@@ -693,7 +757,7 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize,200));
 document.addEventListener('visibilitychange', () => { last = performance.now(); });
 
-if(/[?&]debug\b/.test(location.search)) window.__g = { get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
+if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
 resize(); reset(); state = 'title'; renderLB($('lb1'));
 fetchLB().then(() => renderLB($('lb1')));
 setInterval(() => { if(titleScr.classList.contains('on')) fetchLB().then(() => renderLB($('lb1'))); }, 15000);

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RundocRun Poster</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Inline&family=Figtree:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* A3 portrait stall poster. Print at 100% scale with background graphics on. */
+@page{size:297mm 420mm;margin:0}
+:root{
+  --ink:#071f21; --curtain:#0f3f42; --curtain-2:#1d6a6a; --edge:#2a8f8a; --scrub:#d9efe6; --paper:#f4faf7;
+  --apple:#e5383b; --apple-dark:#a3191c; --trace:#7cf5c8; --amber:#f5b82e; --ok:#22c55e;
+  --display:'Bungee','Impact','Arial Black',sans-serif;
+  --inline:'Bungee Inline','Bungee','Impact',sans-serif;
+  --body:'Figtree','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#04181a;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.poster{position:relative;width:297mm;height:420mm;margin:0 auto;overflow:hidden;color:var(--paper);font-family:var(--body);
+  display:flex;flex-direction:column;align-items:center;padding:16mm 16mm 12mm;
+  background:radial-gradient(120% 70% at 50% 0%,#14585a 0%,var(--curtain) 45%,#082a2c 100%)}
+@media screen{body{padding:16px}.poster{box-shadow:0 20px 60px rgba(0,0,0,.6)}}
+@media screen and (max-width:1160px){.poster{zoom:calc(100vw / 1160px)}}
+
+.kicker{font-weight:800;font-size:7mm;letter-spacing:.02em;color:rgba(244,250,247,.75);margin:0 0 2mm}
+.mark{font-family:var(--display);font-weight:400;font-size:39mm;line-height:.95;margin:0;letter-spacing:-.01em;white-space:nowrap}
+.mark span{color:var(--apple)}
+#ecg{display:block;width:100%;height:24mm;margin:1mm 0 4mm}
+
+.scene{position:relative;width:100%;height:78mm;border-radius:10mm;background:var(--scrub);
+  box-shadow:0 0 0 2.2mm var(--edge),0 0 0 5mm rgba(42,143,138,.25),0 8mm 22mm rgba(0,0,0,.45)}
+.scene canvas{display:block;width:100%;height:100%;border-radius:10mm}
+
+.tag{font-family:var(--display);font-size:11.6mm;line-height:1.02;text-align:center;margin:12mm 0 0;font-weight:400}
+.tag em{font-style:normal;color:var(--apple)}
+
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10mm;width:100%;margin-top:10mm;flex:1;min-height:0}
+
+.card{position:relative;background:var(--paper);color:var(--ink);border-radius:8mm;box-shadow:0 10mm 26mm rgba(0,0,0,.5);
+  display:flex;flex-direction:column;overflow:hidden}
+.band{position:relative;display:flex;justify-content:space-between;align-items:center;padding:6mm 7mm 4.4mm;
+  background:var(--apple);color:#fff;font-weight:800;font-size:5.4mm}
+.band::before{content:"";position:absolute;left:50%;top:0;width:17mm;height:5.5mm;transform:translateX(-50%);
+  background:rgba(7,31,33,.9);border-radius:0 0 6mm 6mm}
+.cbody{padding:6mm 7mm 0;flex:1}
+.rules{list-style:none;margin:0;padding:0;font-size:5.6mm;line-height:1.3;font-weight:600}
+.rules li{display:flex;gap:4mm;padding:3.2mm 0;border-bottom:.6mm dotted rgba(15,63,66,.3)}
+.rules b{flex:none;width:27mm;font-family:var(--display);font-weight:400;color:var(--apple);font-size:5.2mm;padding-top:.5mm}
+.docs{display:grid;grid-template-columns:1fr 1fr;gap:1.6mm 4mm;margin:5mm 0 0;padding:0;list-style:none;font-size:4.5mm;font-weight:700}
+.docs li{display:flex;align-items:center;gap:2.4mm;white-space:nowrap}
+.docs i{width:4mm;height:4mm;border-radius:50%;background:var(--c);flex:none}
+.barcode{height:9mm;margin:6mm 7mm 7mm;border-radius:1mm;opacity:.8;
+  background:repeating-linear-gradient(90deg,#071f21 0 3px,transparent 3px 6px,#071f21 6px 8px,transparent 8px 13px,#071f21 13px 17px,transparent 17px 20px)}
+
+.scan .band{background:var(--amber);color:var(--ink)}
+.scan .cbody{display:flex;flex-direction:column;align-items:center;text-align:center}
+.qr{width:82mm;height:82mm;padding:3mm;background:#fff;border-radius:5mm;border:1.2mm solid var(--curtain)}
+.qr img{display:block;width:100%;height:100%}
+.scan h2{font-family:var(--display);font-weight:400;font-size:12.5mm;line-height:1;color:var(--curtain);margin:5mm 0 2mm}
+.scan p{margin:0;font-size:5.4mm;font-weight:700;line-height:1.3}
+.scan .url{margin-top:2mm;font-size:4.2mm;font-weight:600;opacity:.65;word-break:break-all}
+
+.foot{display:flex;justify-content:space-between;align-items:center;width:100%;margin-top:8mm;font-size:6mm;font-weight:700;color:rgba(244,250,247,.9)}
+.foot b{font-family:var(--display);font-weight:400;color:var(--paper)}
+.foot .pill{font-family:var(--display);font-weight:400;font-size:5.6mm;background:var(--ok);color:var(--ink);padding:3mm 5mm;border-radius:4mm}
+</style>
+</head>
+<body>
+<div class="poster">
+  <p class="kicker">Medical student stall game · 2 minutes · free</p>
+  <h1 class="mark">RUNDOC<span>RUN</span></h1>
+  <canvas id="ecg" aria-hidden="true"></canvas>
+
+  <div class="scene"><canvas id="scene" aria-label="The apple chasing four doctors"></canvas></div>
+
+  <p class="tag">An apple a day keeps the doctor away.<br><em>So go get them.</em></p>
+
+  <div class="row">
+    <div class="card">
+      <div class="band"><span>Code red: doctor hunt</span><span>Priority 1</span></div>
+      <div class="cbody">
+        <ul class="rules">
+          <li><b>Chase</b><span>You are the apple. Ten specialists run from you through the ward.</span></li>
+          <li><b>Answer</b><span>Every doctor you catch asks one MCQ from their subject.</span></li>
+          <li><b>Hurry</b><span>A wrong answer costs 5 seconds. Fastest time tops the board.</span></li>
+        </ul>
+        <ul class="docs" id="docs"></ul>
+      </div>
+      <div class="barcode"></div>
+    </div>
+
+    <div class="card scan">
+      <div class="band"><span>Beat the stall record</span><span>Scan</span></div>
+      <div class="cbody">
+        <div class="qr"><img src="qr.svg" alt="QR code to play RundocRun"></div>
+        <h2>Scan to play</h2>
+        <p>On your phone. No download needed.</p>
+        <p class="url">medinnnetworking-now.github.io/applerundoc</p>
+      </div>
+      <div class="barcode"></div>
+    </div>
+  </div>
+
+  <div class="foot"><span>Brought to you by <b>The Medico app</b></span><span class="pill">themedico.app</span></div>
+</div>
+
+<script src="sprites.js"></script>
+<script>
+(() => {
+  const { SUBJECTS, drawApple, drawDoctor } = window.RR;
+  const docs = document.getElementById('docs');
+  SUBJECTS.forEach(s => {
+    const li = document.createElement('li'), i = document.createElement('i'), t = document.createElement('span');
+    i.style.setProperty('--c', s.color); t.textContent = s.label; li.append(i, t); docs.appendChild(li);
+  });
+
+  const SCALE = 3;   // draw at 3x so the print stays crisp
+  function setup(cv){
+    const r = cv.getBoundingClientRect(), w = cv.offsetWidth, h = cv.offsetHeight;
+    cv.width = Math.round(w*SCALE); cv.height = Math.round(h*SCALE);
+    const g = cv.getContext('2d'); g.setTransform(SCALE,0,0,SCALE,0,0); return [g, w, h];
+  }
+  function ecg(){
+    const [g, w, h] = setup(document.getElementById('ecg'));
+    const gauss = (x,m,s,a) => a*Math.exp(-((x-m)*(x-m))/(2*s*s));
+    g.strokeStyle = '#7cf5c8'; g.lineWidth = 3; g.lineJoin = 'round'; g.shadowColor = '#7cf5c8'; g.shadowBlur = 12;
+    g.beginPath();
+    for(let x = 0; x <= w; x += 1.5){
+      const f = (x / 230) % 1;
+      const v = gauss(f,.12,.03,.14)+gauss(f,.215,.008,-.25)+gauss(f,.24,.011,1)+gauss(f,.268,.01,-.35)+gauss(f,.45,.05,.28);
+      const y = h*.72 - v*h*.62; x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+  function scene(){
+    const [g, w, h] = setup(document.getElementById('scene'));
+    g.fillStyle = '#d9efe6'; g.fillRect(0,0,w,h);
+    // tiled floor + crosses, like the maze
+    const tile = h/4;
+    for(let y = 0; y < 4; y++) for(let x = 0; x*tile < w; x++) if((x+y)%2){ g.fillStyle = 'rgba(15,63,66,.05)'; g.fillRect(x*tile, y*tile, tile, tile); }
+    g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 3; g.lineCap = 'round';
+    for(let y = 0; y < 4; y++) for(let x = 0; x*tile < w; x++){
+      const cx = (x+.5)*tile, cy = (y+.5)*tile, a = tile*.1;
+      g.beginPath(); g.moveTo(cx-a,cy); g.lineTo(cx+a,cy); g.moveTo(cx,cy-a); g.lineTo(cx,cy+a); g.stroke();
+    }
+    // speed trail
+    const T = h*.58, mid = h*.56, ax = w*.17;
+    for(let i = 1; i <= 5; i++){ g.globalAlpha = .1*(6-i)/1.4; g.fillStyle = '#e5383b'; g.beginPath(); g.arc(ax - i*T*.32, mid, T*.36*(1 - i*.12), 0, Math.PI*2); g.fill(); }
+    g.globalAlpha = 1;
+    const cast = [[.42,3,-.03],[.58,6,.05],[.74,0,-.04],[.9,5,.03]];
+    cast.forEach(([fx, si, dy], i) => { const s = SUBJECTS[si]; drawDoctor(g, T*.92, w*fx, mid + dy*h, s.color, s.icon, i*.4, i, {x:1,y:0}); });
+    drawApple(g, T, ax, mid, 0, .24, 0, 1.08);
+  }
+  function draw(){ ecg(); scene(); }
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(draw);
+  window.addEventListener('resize', draw);
+})();
+</script>
+</body>
+</html>

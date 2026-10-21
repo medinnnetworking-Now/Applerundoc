@@ -64,6 +64,16 @@ The rounds board is shared across every device. `api/scores.js` is a Vercel Func
 
 If the API can't be reached (for example when you open `index.html` straight from disk), the board falls back to scores saved in that browser.
 
+## Share card and challenge links
+
+**Share my card: beat my time** on the result card draws a 1080×1350 "Beat my time" image (time, rank, score, the apple chasing doctors, and a QR code to play). On phones it opens the share sheet with the image and a challenge link. On desktop it downloads the PNG and copies the link.
+
+The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahul caught all ten doctors in 42.4s. Beat that." on the title card, and after their run the result card says whether they beat it.
+
+## Poster
+
+`poster.html` is an A3 portrait stall poster in the same style, with a QR code to the game. Open it in Chrome and print at 100% with background graphics on, or save as PDF. The QR code is `qr.svg`. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in `poster.html`.
+
 ## The Medico app funnel
 
 The title card links to The Medico app, and the result card leads with a **Get The Medico app** button. Fifteen seconds after a run ends, the page sends the player to `https://themedico.app/#install` unless they tap "Stay here" or "Chase again". The link and delay are `INSTALL_URL` and `REDIRECT_SECS` in `game.js`.

@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>An Apple a Day: Catch the Doctors</title>
+<title>RundocRun: An Apple a Day</title>
 <meta name="description" content="You are the apple. Catch ten specialists, answer their questions, beat the clock.">
 <meta name="theme-color" content="#0f3f42">
-<meta property="og:title" content="An Apple a Day: Catch the Doctors">
+<meta property="og:title" content="RundocRun: beat my time">
 <meta property="og:description" content="Pac-Man, but you're the apple and the doctors run. Ten catches, ten MCQs, one clock.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,9 +36,10 @@
   <!-- Title -->
   <section id="title" class="screen on">
     <div class="card">
-      <div class="band"><span>Code red: doctor hunt</span><span>Priority 1</span></div>
+      <div class="band"><span>RundocRun</span><span>Code red: doctor hunt</span></div>
       <div class="cbody">
         <canvas id="hero" class="hero" aria-hidden="true"></canvas>
+        <p class="challenge" id="challenge" hidden><b id="chBy">A friend</b> caught all ten doctors in <b id="chTime">0s</b>. Beat that.</p>
         <h1>An apple a day <em>keeps the doctor away.</em></h1>
         <p class="sub">So go get them. Chase down ten specialists. Each one quizzes you the moment you catch them.</p>
         <ul class="rules">
@@ -85,6 +86,7 @@
         <h2>All doctors caught</h2>
         <div class="rank" id="rRank">Resident</div>
         <div class="big" id="rTotal">0<small>pts</small></div>
+        <p class="challenge" id="rBeat" hidden></p>
         <dl class="rx">
           <div><dt>Catches</dt><span class="lead"></span><dd id="rCatch">0</dd></div>
           <div><dt id="rRightL">Answers right</dt><span class="lead"></span><dd id="rRight">0</dd></div>
@@ -95,7 +97,7 @@
         <a class="btn cta install" href="https://themedico.app/#install">Get The Medico app</a>
         <p class="redirect" id="redirectNote" hidden>Opening The Medico app in <b id="redirectSecs">15</b>s. <button type="button" id="stay">Stay here</button></p>
         <button class="btn alt" id="again">Chase again</button>
-        <button class="btn alt" id="share">Challenge a friend</button>
+        <button class="btn alt" id="share">Share my card: beat my time</button>
         <div class="lbh">Rounds board</div>
         <ol class="lb" id="lb2"></ol>
       </div>
@@ -114,6 +116,7 @@
 </div>
 
 <!-- build:js -->
+<script src="sprites.js"></script>
 <script src="questions.js"></script>
 <script src="game.js"></script>
 <!-- /build -->
