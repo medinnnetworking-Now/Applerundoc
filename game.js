@@ -66,7 +66,9 @@ const saveLB = a => { try { localStorage.setItem(LB_KEY, JSON.stringify(a)); } c
 try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 
 // Shared board lives at /api/scores (Vercel Blob). If it can't be reached, the board falls back to this device.
-const API = '/api/scores';
+// The board API runs on Vercel. Static copies (GitHub Pages) call the Vercel deployment so everyone shares one board.
+const BOARD_HOST = 'https://applerundoc.vercel.app';
+const API = (/\.github\.io$/.test(location.hostname) ? BOARD_HOST : '') + '/api/scores';
 let sharedLB = null;
 async function api(method, body){
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);

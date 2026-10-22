@@ -30,6 +30,11 @@ async function top(limit){
 }
 
 module.exports = async (req, res) => {
+  // The GitHub Pages copy of the game calls this from another origin.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if(req.method === 'OPTIONS') return res.status(204).end();
   try {
     if(req.method === 'GET'){
       const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 8));
@@ -53,7 +58,7 @@ module.exports = async (req, res) => {
       const rank = rows.findIndex(r => r.id === id);
       return res.status(201).json({ id, scores: rows, count, rank: rank >= 0 ? rank + 1 : null });
     }
-    res.setHeader('Allow', 'GET, POST');
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
     return res.status(405).json({ error: 'Method not allowed' });
   } catch(e){
     console.error(e);
