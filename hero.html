@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RundocRun Hero Card</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍎</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Inline&family=Figtree:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Social hero card, 1080x1350 (4:5). Screenshot the .hero element, or open hero.html and save as image. */
+:root{
+  --ink:#071f21; --curtain:#0f3f42; --curtain-2:#1d6a6a; --edge:#2a8f8a; --scrub:#d9efe6; --paper:#f4faf7;
+  --apple:#e5383b; --amber:#f5b82e; --ok:#22c55e;
+  --display:'Bungee','Impact','Arial Black',sans-serif;
+  --body:'Figtree','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#04181a}
+.hero{position:relative;width:1080px;height:1350px;margin:0 auto;overflow:hidden;color:var(--paper);font-family:var(--body);
+  display:flex;flex-direction:column;align-items:center;padding:56px 64px 0;
+  background:radial-gradient(120% 70% at 50% 0%,#14585a 0%,var(--curtain) 45%,#082a2c 100%)}
+@media screen and (max-width:1100px){.hero{zoom:calc(100vw / 1080px)}}
+
+.chip{font-family:var(--display);font-size:30px;letter-spacing:.02em;background:var(--apple);color:#fff;padding:12px 26px;border-radius:999px;box-shadow:0 6px 0 #a3191c}
+.mark{font-family:var(--display);font-weight:400;font-size:144px;line-height:.95;margin:24px 0 0;white-space:nowrap}
+.mark span{color:var(--apple)}
+#ecg{display:block;width:100%;height:74px;margin:4px 0 8px}
+
+.scene{width:100%;height:268px;border-radius:44px;background:var(--scrub);
+  box-shadow:0 0 0 10px var(--edge),0 0 0 22px rgba(42,143,138,.25),0 30px 70px rgba(0,0,0,.45)}
+.scene canvas{display:block;width:100%;height:100%;border-radius:44px}
+
+.copy{margin-top:46px;text-align:center;font-family:var(--display);font-weight:400;line-height:1.1}
+.copy div{text-wrap:balance}
+.copy .q{font-size:54px;color:var(--paper)}
+.copy .q2{font-size:46px;color:var(--paper);margin-top:14px}
+.copy .t{font-size:46px;color:var(--apple);margin-top:14px}
+
+.tags{display:flex;align-items:center;gap:22px;margin-top:34px}
+.tag{font-family:var(--display);font-size:36px;color:var(--ink);background:var(--amber);padding:12px 26px;border-radius:18px;box-shadow:0 6px 0 #b9851a}
+.url{font-family:var(--display);font-size:28px;color:var(--ink);background:var(--ok);padding:15px 24px;border-radius:18px;box-shadow:0 6px 0 #15803d}
+
+.foot{position:absolute;left:0;right:0;bottom:0;height:138px;background:var(--paper);color:var(--ink);display:flex;align-items:center;justify-content:space-between;padding:0 64px;
+  border-radius:44px 44px 0 0;box-shadow:0 -14px 40px rgba(0,0,0,.35)}
+.foot::before{content:"";position:absolute;left:50%;top:0;width:90px;height:28px;transform:translateX(-50%);background:rgba(7,31,33,.9);border-radius:0 0 28px 28px}
+.org{font-family:var(--display);font-size:54px;color:var(--curtain);line-height:1}
+.dev{text-align:right;font-weight:800;font-size:28px;line-height:1.25}
+.dev b{display:block;font-family:var(--display);font-weight:400;font-size:38px;color:var(--apple)}
+</style>
+</head>
+<body>
+<div class="hero" id="hero">
+  <div class="chip">Code red: doctor hunt</div>
+  <h1 class="mark">RUNDOC<span>RUN</span></h1>
+  <canvas id="ecg" aria-hidden="true"></canvas>
+  <div class="scene"><canvas id="scene" aria-label="The apple chasing four doctors"></canvas></div>
+
+  <div class="copy">
+    <div class="q">An apple a day keeps the doctor away?</div>
+    <div class="q2">How quick can you chase ’em all away?</div>
+    <div class="t">There’s a trick to every doc you chase!</div>
+  </div>
+
+  <div class="tags"><span class="tag">#Buildforfun</span><span class="url">applerundoc.vercel.app</span></div>
+
+  <div class="foot">
+    <div class="org">IEDC CMC</div>
+    <div class="dev">Developed by<b>Medinn</b></div>
+  </div>
+</div>
+
+<script src="sprites.js"></script>
+<script>
+(() => {
+  const { SUBJECTS, drawApple, drawDoctor } = window.RR;
+  const S = 2;
+  function setup(cv){
+    const w = cv.offsetWidth, h = cv.offsetHeight;
+    cv.width = w*S; cv.height = h*S;
+    const g = cv.getContext('2d'); g.setTransform(S,0,0,S,0,0); return [g, w, h];
+  }
+  function ecg(){
+    const [g, w, h] = setup(document.getElementById('ecg'));
+    const gauss = (x,m,s,a) => a*Math.exp(-((x-m)*(x-m))/(2*s*s));
+    g.strokeStyle = '#7cf5c8'; g.lineWidth = 5; g.lineJoin = 'round'; g.shadowColor = '#7cf5c8'; g.shadowBlur = 16;
+    g.beginPath();
+    for(let x = 0; x <= w; x += 2){
+      const f = (x / 300) % 1;
+      const v = gauss(f,.12,.03,.14)+gauss(f,.215,.008,-.25)+gauss(f,.24,.011,1)+gauss(f,.268,.01,-.35)+gauss(f,.45,.05,.28);
+      const y = h*.74 - v*h*.64; x ? g.lineTo(x, y) : g.moveTo(x, y);
+    }
+    g.stroke();
+  }
+  function scene(){
+    const [g, w, h] = setup(document.getElementById('scene'));
+    g.fillStyle = '#d9efe6'; g.fillRect(0,0,w,h);
+    const tile = h/3;
+    for(let y = 0; y < 3; y++) for(let x = 0; x*tile < w; x++) if((x+y)%2){ g.fillStyle = 'rgba(15,63,66,.05)'; g.fillRect(x*tile, y*tile, tile, tile); }
+    g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 4; g.lineCap = 'round';
+    for(let y = 0; y < 3; y++) for(let x = 0; x*tile < w; x++){
+      const cx = (x+.5)*tile, cy = (y+.5)*tile, a = tile*.08;
+      g.beginPath(); g.moveTo(cx-a,cy); g.lineTo(cx+a,cy); g.moveTo(cx,cy-a); g.lineTo(cx,cy+a); g.stroke();
+    }
+    const T = h*.64, mid = h*.56, ax = w*.15;
+    for(let i = 1; i <= 5; i++){ g.globalAlpha = .12*(6-i)/1.4; g.fillStyle = '#e5383b'; g.beginPath(); g.arc(ax - i*T*.3, mid, T*.36*(1 - i*.12), 0, Math.PI*2); g.fill(); }
+    g.globalAlpha = 1;
+    [[.38,3,-.03],[.54,6,.05],[.70,0,-.04],[.86,5,.03]].forEach(([fx, si, dy], i) => {
+      const s = SUBJECTS[si]; drawDoctor(g, T*.96, w*fx, mid + dy*h, s.color, s.icon, i*.4, i, {x:1,y:0}); });
+    drawApple(g, T, ax, mid, 0, .24, 0, 1.08);
+  }
+  const draw = () => { ecg(); scene(); };
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(draw);
+})();
+</script>
+</body>
+</html>
