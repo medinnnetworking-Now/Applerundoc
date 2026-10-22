@@ -105,23 +105,7 @@ function renderLB(el, meId){
    The Medico app funnel
    ===================================================================== */
 const INSTALL_URL = 'https://themedico.app/?utm_source=apple-a-day&utm_medium=stall&utm_campaign=game#install';
-const REDIRECT_SECS = 15;
-let redirectTimer = null, redirectLeft = 0;
-function goInstall(){ stopRedirect(); location.href = INSTALL_URL; }
-function stopRedirect(){
-  if(redirectTimer){ clearInterval(redirectTimer); redirectTimer = null; }
-  $('redirectNote').hidden = true;
-}
-function startRedirect(){
-  stopRedirect(); redirectLeft = REDIRECT_SECS;
-  const note = $('redirectNote'), secs = $('redirectSecs');
-  secs.textContent = redirectLeft; note.hidden = false;
-  redirectTimer = setInterval(() => {
-    redirectLeft--; secs.textContent = Math.max(0, redirectLeft);
-    if(redirectLeft <= 0) goInstall();
-  }, 1000);
-}
-document.querySelectorAll('a.install').forEach(a => { a.href = INSTALL_URL; a.addEventListener('click', stopRedirect); });
+document.querySelectorAll('a.install').forEach(a => { a.href = INSTALL_URL; });
 
 /* =====================================================================
    Audio
@@ -272,7 +256,6 @@ function reset(){
 }
 
 function startGame(){
-  stopRedirect();
   try{ localStorage.setItem(NAME_KEY, nameEl.value.trim()); }catch(e){}
   titleScr.classList.remove('on'); resultScr.classList.remove('on'); mcqScr.classList.remove('on');
   reset(); state = 'countdown'; cdT = 0; lastCd = 4;
@@ -320,7 +303,6 @@ document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointe
 $('go').onclick = startGame;
 $('again').onclick = startGame;
 $('mcqNext').onclick = () => proceed();
-$('stay').onclick = stopRedirect;
 $('share').onclick = shareCard;
 
 /* =====================================================================
@@ -426,7 +408,6 @@ async function drawCard(f){
 }
 async function shareCard(){
   const f = finalTotals; if(!f) return;
-  stopRedirect();
   const btn = $('share'), label = btn.textContent;
   const url = challengeURL(f);
   const txt = `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`;
@@ -608,7 +589,6 @@ function win(){
     $('rBeat').textContent = beatLine(finalTotals); $('rBeat').hidden = !challenge;
     renderLB($('lb2'), entry.id);
     resultScr.classList.add('on');
-    startRedirect();
     const sharedId = await sent;
     renderLB($('lb2'), sharedId || entry.id);
   }, 1000);

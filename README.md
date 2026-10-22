@@ -76,7 +76,7 @@ The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahu
 
 ## The Medico app funnel
 
-The title card links to The Medico app, and the result card leads with a **Get The Medico app** button. Fifteen seconds after a run ends, the page sends the player to `https://themedico.app/#install` unless they tap "Stay here" or "Chase again". The link and delay are `INSTALL_URL` and `REDIRECT_SECS` in `game.js`.
+The title card links to The Medico app, and the result card leads with a **Get The Medico app** button. Neither redirects on its own; players go only if they tap. The link is `INSTALL_URL` in `game.js`.
 
 ## Debug
 
