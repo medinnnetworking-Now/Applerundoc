@@ -65,6 +65,8 @@ The rounds board is shared across every device through Supabase. The page reads 
 1. In Supabase, open **SQL Editor**, paste `supabase/schema.sql`, and run it. It creates the table and Row Level Security rules that let anyone read the board and add a score, but not edit or delete one.
 2. In **Project Settings → API**, copy the **Project URL** and the **anon / publishable** key into `SUPABASE_URL` and `SUPABASE_KEY` near the top of `game.js`. Both are public by design; never use the service_role / secret key here.
 
+The board shows each player's **best run once**, not every run. Each device keeps a random id (`player_id`) so one person replaying can't fill the top spots. The database also refuses names made only of digits or symbols and scores that the game's scoring could never produce, so a hand-made request can't post an impossible time.
+
 With those left empty, or if Supabase can't be reached, the board falls back to scores saved in that browser.
 
 To clear the board, delete the rows in Supabase's Table Editor.

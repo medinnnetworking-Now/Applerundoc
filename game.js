@@ -70,29 +70,38 @@ try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 // reading the board and adding scores. Leave them empty and the board falls back to this device.
 const SUPABASE_URL = 'https://xukbrkwtayrjbkttfakm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_41KBwbN5oT0N76_2YBr7Iw_nUv1gpBs';
-const TABLE = SUPABASE_URL && SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rundocrun_scores';
+const REST = SUPABASE_URL && SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/';
 let sharedLB = null;
 async function sb(path, opts = {}){
-  if(!TABLE) throw new Error('no board');
+  if(!REST) throw new Error('no board');
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
   const headers = {apikey: SUPABASE_KEY, 'Content-Type': 'application/json', ...(opts.headers || {})};
   if(SUPABASE_KEY.startsWith('eyJ')) headers.Authorization = 'Bearer ' + SUPABASE_KEY;   // legacy anon JWT keys
   try{
-    const r = await fetch(TABLE + path, {...opts, headers, signal: ctl.signal, cache: 'no-store'});
+    const r = await fetch(REST + path, {...opts, headers, signal: ctl.signal, cache: 'no-store'});
     if(!r.ok) throw new Error(r.status);
     return await r.json();
   } finally { clearTimeout(t); }
 }
+// One random id per device, so the board can show each player's best run once instead of every run.
+const PID_KEY = 'rundocrun-pid', MINE_KEY = 'rundocrun-mine';
+const rand = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+let playerId;
+try{ playerId = localStorage.getItem(PID_KEY) || ''; if(playerId.length < 8){ playerId = rand(); localStorage.setItem(PID_KEY, playerId); } }catch(e){ playerId = rand(); }
+let mine = new Set();
+try{ mine = new Set(JSON.parse(localStorage.getItem(MINE_KEY)) || []); }catch(e){}
+const rememberMine = id => { mine.add(id); try{ localStorage.setItem(MINE_KEY, JSON.stringify([...mine].slice(-60))); }catch(e){} };
 const fromRow = r => ({id: String(r.id), name: r.name, score: r.score, right: r.right_answers, time: Number(r.time_s)});
 async function fetchLB(){
-  try{ sharedLB = (await sb('?select=id,name,score,right_answers,time_s&order=score.desc,time_s.asc&limit=8')).map(fromRow); }
+  try{ sharedLB = (await sb('rundocrun_board?select=id,name,score,right_answers,time_s&order=score.desc,time_s.asc&limit=8')).map(fromRow); }
   catch(e){ sharedLB = null; }
   return sharedLB;
 }
 async function submitScore(entry){
   try{
-    const [row] = await sb('', {method: 'POST', headers: {Prefer: 'return=representation'},
-      body: JSON.stringify({name: entry.name.slice(0,14), score: entry.score, right_answers: entry.right, time_s: Math.round(entry.time*100)/100})});
+    const [row] = await sb('rundocrun_scores', {method: 'POST', headers: {Prefer: 'return=representation'},
+      body: JSON.stringify({name: entry.name.slice(0,14), score: entry.score, right_answers: entry.right, time_s: Math.round(entry.time*100)/100, player_id: playerId})});
+    rememberMine(String(row.id));
     await fetchLB();
     return String(row.id);
   }catch(e){ return null; }
@@ -107,7 +116,7 @@ function renderLB(el, meId){
     s.textContent = 'No scores yet. Set the first one.'; li.appendChild(s); el.appendChild(li); return;
   }
   lb.forEach((r,i) => {
-    const li = document.createElement('li'); if(r.id===meId) li.className='me';
+    const li = document.createElement('li'); if(r.id===meId || mine.has(r.id)) li.className='me';
     const mk = (cls,txt) => { const s=document.createElement('span'); s.className=cls; s.textContent=txt; return s; };
     li.append(mk('rk',i+1), mk('nm',r.name), mk('sc',r.score), mk('meta',`${r.right}/${TOTAL} · ${r.time.toFixed(1)}s`));
     el.appendChild(li);
@@ -296,8 +305,15 @@ function reset(){
   clockEl.textContent = '0.00'; scoreEl.textContent = '0';
 }
 
+const NOT_A_NAME = /^[\d\s\p{P}\p{S}_]+$/u;   // digits or symbols only, e.g. 741852963
+const nameHint = $('nameHint');
+nameEl.addEventListener('input', () => { nameHint.hidden = true; });
 function startGame(){
-  try{ localStorage.setItem(NAME_KEY, nameEl.value.trim()); }catch(e){}
+  const nm = nameEl.value.trim();
+  if(nm && NOT_A_NAME.test(nm) && titleScr.classList.contains('on')){
+    nameHint.hidden = false; nameEl.focus(); return;
+  }
+  try{ localStorage.setItem(NAME_KEY, nm); }catch(e){}
   titleScr.classList.remove('on'); resultScr.classList.remove('on'); mcqScr.classList.remove('on');
   reset(); state = 'countdown'; cdT = 0; lastCd = 4;
   tone(1,.01,'sine',.001);

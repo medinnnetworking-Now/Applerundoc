@@ -75,6 +75,8 @@ h2{font-size:32px}
 .hero{display:block;width:100%;height:96px;margin:2px 0 10px;border-radius:14px;background:var(--scrub)}
 label.nm{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
 #name{width:100%;font:700 18px var(--body);padding:11px 12px;border-radius:12px;border:2.5px solid var(--curtain);background:#fff;color:var(--ink)}
+.hint{margin:7px 0 0;font-size:13.5px;font-weight:700;color:var(--apple-dark)}
+.hint[hidden]{display:none}
 .btn{display:block;width:100%;margin-top:12px;font-family:var(--display);font-size:22px;letter-spacing:.02em;padding:13px 14px;border:0;border-radius:14px;
   background:var(--apple);color:#fff;cursor:pointer;box-shadow:0 5px 0 var(--apple-dark);transition:transform .08s,box-shadow .08s}
 .btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--apple-dark)}
