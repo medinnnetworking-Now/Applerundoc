@@ -121,7 +121,7 @@ function renderLB(el, meId){
 const PROMO = { url: 'https://medinn-sandy.vercel.app/?utm_source=rundocrun&utm_medium=game', title: 'Developed by Medinn', button: 'Developed by Medinn' };
 const GAME_URL = 'applerundoc.vercel.app';   // printed on the share card
 const IG_HANDLE = '__itssid__';
-const IG_URL = 'https://www.instagram.com/' + IG_HANDLE + '/';
+const IG_URL = 'https://www.instagram.com/__itssid__?cplk=MXdzenQ0a25xcnJibQ%3D%3D&utm_source=qr';
 document.querySelectorAll('a.ig').forEach(a => { a.href = IG_URL; });
 if(PROMO.url){
   const t = $('promoTitle'), b = $('promoBtn');
