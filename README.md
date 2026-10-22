@@ -76,8 +76,12 @@ The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahu
 
 ## Promo link
 
-`PROMO` at the top of the promo section in `game.js` adds an optional link: a strip on the title card (`title`) and a button on the result card (`button`), both pointing at `url`. With `url` empty, as shipped, neither appears.
+`PROMO` at the top of the promo section in `game.js` adds an optional link: a strip on the title card (`title`) and a button on the result card (`button`), both pointing at `url`. It currently credits the developer and links to the Medinn portfolio (opens in a new tab). With `url` empty, neither appears.
 
 ## Debug
 
 Add `?debug` to the URL to expose `window.__g` for automated testing.
+
+## Credits
+
+Developed by [Medinn](https://medinn-sandy.vercel.app/).
