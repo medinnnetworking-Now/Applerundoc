@@ -68,8 +68,8 @@ try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 // Shared board lives in Supabase (table rundocrun_scores, see supabase/schema.sql).
 // The URL and the public anon / publishable key are safe to ship in the page: Row Level Security only allows
 // reading the board and adding scores. Leave them empty and the board falls back to this device.
-const SUPABASE_URL = '';
-const SUPABASE_KEY = '';
+const SUPABASE_URL = 'https://xukbrkwtayrjbkttfakm.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_41KBwbN5oT0N76_2YBr7Iw_nUv1gpBs';
 const TABLE = SUPABASE_URL && SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rundocrun_scores';
 let sharedLB = null;
 async function sb(path, opts = {}){
