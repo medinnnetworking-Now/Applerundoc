@@ -71,6 +71,8 @@ To clear the board, delete the rows in Supabase's Table Editor.
 
 ## Share card and challenge links
 
+**Share** in the top bar works at any point and pauses the chase while the share sheet is open. Before a run it shares an invite card, mid-run a "Mid-chase 3/10" progress card, and after a run the "Beat my time" card. Every card carries the Instagram handle (`IG_HANDLE` in `game.js`).
+
 **Share my card: beat my time** on the result card draws a 1080×1350 "Beat my time" image (time, rank, score, the apple chasing doctors, and a QR code to play). On phones it opens the share sheet with the image and a challenge link. On desktop it downloads the PNG and copies the link.
 
 The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahul caught all ten doctors in 42.4s. Beat that." on the title card, and after their run the result card says whether they beat it.

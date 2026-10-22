@@ -120,6 +120,9 @@ function renderLB(el, meId){
    ===================================================================== */
 const PROMO = { url: 'https://medinn-sandy.vercel.app/?utm_source=rundocrun&utm_medium=game', title: 'Developed by Medinn', button: 'Developed by Medinn' };
 const GAME_URL = 'applerundoc.vercel.app';   // printed on the share card
+const IG_HANDLE = '__itssid__';
+const IG_URL = 'https://www.instagram.com/' + IG_HANDLE + '/';
+document.querySelectorAll('a.ig').forEach(a => { a.href = IG_URL; });
 if(PROMO.url){
   const t = $('promoTitle'), b = $('promoBtn');
   t.href = b.href = PROMO.url;
@@ -342,7 +345,8 @@ document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointe
 $('go').onclick = startGame;
 $('again').onclick = startGame;
 $('mcqNext').onclick = () => proceed();
-$('share').onclick = shareCard;
+$('share').onclick = () => shareCard($('share'));
+$('hudShare').onclick = () => shareCard($('hudShare'));
 
 /* =====================================================================
    Challenge links + "Beat my time" share card
@@ -365,6 +369,11 @@ function beatLine(f){
 }
 
 const qrImg = new Image(); qrImg.src = 'qr.svg';
+function fitFont(g, text, size, maxW, font){
+  g.font = font.replace('{}', size);
+  const w = g.measureText(text).width;
+  if(w > maxW) g.font = font.replace('{}', Math.floor(size * maxW / w));
+}
 function wrapText(g, text, x, y, maxW, lh){
   let line = '';
   for(const w of text.split(' ')){
@@ -372,6 +381,7 @@ function wrapText(g, text, x, y, maxW, lh){
     if(g.measureText(t).width > maxW && line){ g.fillText(line, x, y); line = w; y += lh; } else line = t;
   }
   g.fillText(line, x, y);
+  return y;
 }
 function ecgLine(g, x0, x1, y, amp){
   const gauss = (x,m,s,a) => a*Math.exp(-((x-m)*(x-m))/(2*s*s));
@@ -413,10 +423,10 @@ async function drawCard(f){
   g.textAlign = 'right'; g.fillText(f.name, cx + cw_ - 40, cy + 64);
 
   g.textAlign = 'center';
-  g.fillStyle = '#0f3f42'; g.font = '400 64px Bungee, Impact, sans-serif'; g.fillText('BEAT MY TIME', Wc/2, cy + 196);
-  g.fillStyle = '#e5383b'; g.font = '400 210px Bungee, Impact, sans-serif'; g.fillText(f.time.toFixed(1) + 's', Wc/2, cy + 400);
-  g.fillStyle = '#071f21'; g.font = '800 42px Figtree, system-ui, sans-serif';
-  g.fillText(`${f.rank} · ${f.total} pts · ${f.right}/${TOTAL} right`, Wc/2, cy + 470);
+  g.fillStyle = '#0f3f42'; g.font = '400 64px Bungee, Impact, sans-serif'; g.fillText(f.head, Wc/2, cy + 196);
+  g.fillStyle = '#e5383b'; fitFont(g, f.big, 210, cw_ - 100, '400 {}px Bungee, Impact, sans-serif'); g.fillText(f.big, Wc/2, cy + 400);
+  g.fillStyle = '#071f21'; fitFont(g, f.sub, 42, cw_ - 80, '800 {}px Figtree, system-ui, sans-serif');
+  g.fillText(f.sub, Wc/2, cy + 470);
 
   // chase scene
   const sx = cx + 40, sy = cy + 510, sw_ = cw_ - 80, sh = 190;
@@ -435,36 +445,65 @@ async function drawCard(f){
   const tx = qrImg.naturalWidth ? sx + qs + 36 : sx;
   g.textAlign = 'left'; g.fillStyle = '#0f3f42'; g.font = '400 50px Bungee, Impact, sans-serif'; g.fillText('Scan to play', tx, qy + 58);
   g.fillStyle = '#071f21'; g.font = '600 31px Figtree, system-ui, sans-serif';
-  wrapText(g, 'You are the apple. Catch ten doctors, answer their questions, beat my time.', tx, qy + 106, cx + cw_ - 40 - tx, 40);
+  const by = wrapText(g, f.blurb, tx, qy + 106, cx + cw_ - 40 - tx, 40);
+  g.fillStyle = '#e5383b'; g.font = '800 27px Figtree, system-ui, sans-serif';
+  g.fillText('Game ideas? DM @' + IG_HANDLE, tx, Math.max(qy + 188, by + 44));
 
   // barcode
   g.fillStyle = 'rgba(7,31,33,.8)';
   for(let x = cx + 40, i = 0; x < cx + cw_ - 40; i++){ const w = [2,1,3,2,1][i%5]; g.fillRect(x, cy + ch_ - 44, w, 26); x += w + [2,4,1,3,2][i%5]; }
 
-  g.textAlign = 'center'; g.fillStyle = 'rgba(244,250,247,.85)'; g.font = '700 30px Figtree, system-ui, sans-serif';
-  g.fillText('Play at ' + GAME_URL + ' · Developed by Medinn', Wc/2, Hc - 18);
+  g.textAlign = 'center'; g.fillStyle = 'rgba(244,250,247,.85)';
+  const foot = GAME_URL + ' · Developed by Medinn · IG @' + IG_HANDLE;
+  fitFont(g, foot, 30, Wc - 60, '700 {}px Figtree, system-ui, sans-serif'); g.fillText(foot, Wc/2, Hc - 18);
   return new Promise(r => cv.toBlob(r, 'image/png'));
 }
-async function shareCard(){
-  const f = finalTotals; if(!f) return;
-  const btn = $('share'), label = btn.textContent;
-  const url = challengeURL(f);
-  const txt = `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`;
-  btn.textContent = 'Making your card…';
+const IN_RUN = ['countdown','play','hit','quiz','reveal','ready'];
+function cardSpec(){
+  const who = nameEl.value.trim() || 'Apple';
+  if(state==='won' && finalTotals){
+    const f = finalTotals;
+    return { name: f.name, head: 'BEAT MY TIME', big: f.time.toFixed(1) + 's',
+      sub: `${f.rank} · ${f.total} pts · ${f.right}/${TOTAL} right`,
+      blurb: 'You are the apple. Catch ten doctors, answer their questions, beat my time.',
+      text: `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`,
+      url: challengeURL(f), file: 'rundocrun-beat-my-time.png' };
+  }
+  if(IN_RUN.includes(state)){
+    return { name: who, head: 'MID-CHASE', big: `${caughtN}/${TOTAL}`,
+      sub: `doctors caught · ${chaseTime.toFixed(1)}s · ${liveScore()} pts`,
+      blurb: "I'm mid-chase right now. Catch all ten doctors faster than me.",
+      text: `I've caught ${caughtN}/${TOTAL} doctors in ${chaseTime.toFixed(1)}s on RundocRun. Catch all ten faster:`,
+      url: BASE_URL, file: 'rundocrun-mid-chase.png' };
+  }
+  return { name: who, head: 'CAN YOU CATCH', big: `ALL ${TOTAL}?`,
+    sub: `${TOTAL} doctors · ${TOTAL} questions · 1 clock`,
+    blurb: 'You are the apple. Catch ten doctors and answer their questions.',
+    text: 'You are the apple and the doctors run. Can you catch all ten on RundocRun?',
+    url: BASE_URL, file: 'rundocrun.png' };
+}
+let sharing = false;
+async function shareCard(btn){
+  if(sharing) return;
+  sharing = true;                       // the chase clock and quiz timer stop while sharing
+  const spec = cardSpec(), label = btn.textContent;
+  const msg = `${spec.text} ${spec.url}\n\nMade by @${IG_HANDLE}. Drop your mini game ideas.`;
+  btn.textContent = 'Making card…';
   try{
-    const blob = await drawCard(f);
-    const file = new File([blob], 'rundocrun-beat-my-time.png', {type:'image/png'});
+    const blob = await drawCard(spec);
+    const file = new File([blob], spec.file, {type:'image/png'});
     if(navigator.canShare && navigator.canShare({files:[file]})){
-      await navigator.share({files:[file], title:'RundocRun', text:`${txt} ${url}`});
+      await navigator.share({files:[file], title:'RundocRun', text: msg});
     } else {
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
-      try{ await navigator.clipboard.writeText(`${txt} ${url}`); }catch(e){}
-      btn.textContent = 'Card saved. Link copied.';
+      try{ await navigator.clipboard.writeText(msg); }catch(e){}
+      btn.textContent = 'Saved. Link copied.';
       setTimeout(() => btn.textContent = label, 2600);
       return;
     }
   }catch(e){}
+  finally{ sharing = false; last = performance.now(); }
   btn.textContent = label;
 }
 
@@ -770,7 +809,7 @@ let last = performance.now();
 function frame(now){
   let dt = Math.min(.05,(now-last)/1000); last = now;
   const n = Math.max(1,Math.ceil(dt/(1/90))), h = dt/n;
-  if(apple) for(let i=0;i<n;i++) step(h);
+  if(apple && !sharing) for(let i=0;i<n;i++) step(h);
   fx(dt);
   render(now);
   if(titleScr.classList.contains('on') && !reduceMotion) renderHero(now);
