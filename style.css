@@ -87,6 +87,10 @@ label.nm{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
 .lv.on{background:var(--curtain);color:#fff}
 .lv.locked{opacity:.6;background:#eef3f1}
 .lv.locked b::after{content:" 🔒";font-size:13px}
+.lv.afford{opacity:1;background:#fff7e0;border-color:var(--amber);box-shadow:0 4px 0 #b9851a;animation:nudge 1.6s ease-in-out infinite}
+.lv.afford b::after{content:" 🍎"}
+.lvhead{display:flex;justify-content:space-between;align-items:center}
+.apples{font-weight:800;font-size:13px;color:#b9851a}
 .lvnote{margin:8px 0 0;font-size:13.5px;font-weight:600;line-height:1.35;min-height:2.7em}
 .lvtag{margin:6px 0 0;font-size:14px;font-weight:800;color:var(--apple)}
 .unlock{margin:12px 0 0;padding:9px 12px;border-radius:12px;background:#c9f7d9;color:#14532d;font-size:14px;font-weight:800;text-align:center}
