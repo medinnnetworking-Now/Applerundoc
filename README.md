@@ -4,7 +4,7 @@ An apple a day keeps the doctor away, so go get them.
 
 A Pac-Man-style chase where **you are the apple** and ten specialist doctors run from you through a hospital corridor maze. Catch a doctor and they quiz you with an MCQ from their subject. Answer right for points, answer wrong and you pay 5 seconds. Fastest, sharpest chaser tops the rounds board.
 
-No build step. Plain HTML, CSS and JavaScript on a canvas, plus one small Vercel Function for the shared board.
+No build step. Plain HTML, CSS and JavaScript on a canvas, with Supabase for the shared board.
 
 ## Play
 
@@ -50,19 +50,24 @@ Constants sit at the top of `game.js`: `APPLE_SPEED`, `DOC_BASE`, `DOC_STEP` (do
 
 It is a static site, so any static host works.
 
-- **Vercel (recommended):** import the repo, framework preset "Other", no build command, then connect a Blob store under Storage. This is the only host where the shared board works.
-- **GitHub Pages / Netlify:** the game works, but the board is per device.
+- **Vercel:** import the repo, framework preset "Other", no build command.
+- **GitHub Pages:** Settings, Pages, deploy from branch `main` and root.
+- **Netlify:** drag the folder in.
+
+The shared board works on all of them once Supabase is set up.
 
 `node scripts/build-single.js` also writes a single self-contained file to `dist/apple-a-day.html`.
 
 ## Leaderboard
 
-The rounds board is shared across every device. `api/scores.js` is a Vercel Function that stores each finished run as its own blob in a private Vercel Blob store (connected to the project as `BLOB_READ_WRITE_TOKEN`), so simultaneous submissions at a busy stall never clash.
+The rounds board is shared across every device through Supabase. The page reads and writes the `rundocrun_scores` table directly, so it works on any static host (Vercel, GitHub Pages, Netlify).
 
-- `GET /api/scores?limit=8` returns the top runs.
-- `POST /api/scores` with `{name, score, right, time}` saves a run.
+1. In Supabase, open **SQL Editor**, paste `supabase/schema.sql`, and run it. It creates the table and Row Level Security rules that let anyone read the board and add a score, but not edit or delete one.
+2. In **Project Settings → API**, copy the **Project URL** and the **anon / publishable** key into `SUPABASE_URL` and `SUPABASE_KEY` near the top of `game.js`. Both are public by design; never use the service_role / secret key here.
 
-If the API can't be reached (for example when you open `index.html` straight from disk), the board falls back to scores saved in that browser.
+With those left empty, or if Supabase can't be reached, the board falls back to scores saved in that browser.
+
+To clear the board, delete the rows in Supabase's Table Editor.
 
 ## Share card and challenge links
 

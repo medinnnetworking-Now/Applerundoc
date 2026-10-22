@@ -65,24 +65,37 @@ const loadLB = () => { try { return JSON.parse(localStorage.getItem(LB_KEY)) || 
 const saveLB = a => { try { localStorage.setItem(LB_KEY, JSON.stringify(a)); } catch(e){} };
 try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 
-// Shared board lives at /api/scores (Vercel Blob). If it can't be reached, the board falls back to this device.
-// The board API runs on Vercel. Static copies (GitHub Pages) call the Vercel deployment so everyone shares one board.
-const BOARD_HOST = 'https://applerundoc.vercel.app';
-const API = (/\.github\.io$/.test(location.hostname) ? BOARD_HOST : '') + '/api/scores';
+// Shared board lives in Supabase (table rundocrun_scores, see supabase/schema.sql).
+// The URL and the public anon / publishable key are safe to ship in the page: Row Level Security only allows
+// reading the board and adding scores. Leave them empty and the board falls back to this device.
+const SUPABASE_URL = '';
+const SUPABASE_KEY = '';
+const TABLE = SUPABASE_URL && SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/rundocrun_scores';
 let sharedLB = null;
-async function api(method, body){
+async function sb(path, opts = {}){
+  if(!TABLE) throw new Error('no board');
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+  const headers = {apikey: SUPABASE_KEY, 'Content-Type': 'application/json', ...(opts.headers || {})};
+  if(SUPABASE_KEY.startsWith('eyJ')) headers.Authorization = 'Bearer ' + SUPABASE_KEY;   // legacy anon JWT keys
   try{
-    const r = await fetch(API + (method==='GET' ? '?limit=8' : ''), {method, signal:ctl.signal, cache:'no-store',
-      headers: body ? {'Content-Type':'application/json'} : undefined, body: body ? JSON.stringify(body) : undefined});
+    const r = await fetch(TABLE + path, {...opts, headers, signal: ctl.signal, cache: 'no-store'});
     if(!r.ok) throw new Error(r.status);
     return await r.json();
   } finally { clearTimeout(t); }
 }
-async function fetchLB(){ try{ sharedLB = (await api('GET')).scores; }catch(e){ sharedLB = null; } return sharedLB; }
+const fromRow = r => ({id: String(r.id), name: r.name, score: r.score, right: r.right_answers, time: Number(r.time_s)});
+async function fetchLB(){
+  try{ sharedLB = (await sb('?select=id,name,score,right_answers,time_s&order=score.desc,time_s.asc&limit=8')).map(fromRow); }
+  catch(e){ sharedLB = null; }
+  return sharedLB;
+}
 async function submitScore(entry){
-  try{ const d = await api('POST', {name:entry.name, score:entry.score, right:entry.right, time:entry.time}); sharedLB = d.scores; return d.id; }
-  catch(e){ return null; }
+  try{
+    const [row] = await sb('', {method: 'POST', headers: {Prefer: 'return=representation'},
+      body: JSON.stringify({name: entry.name.slice(0,14), score: entry.score, right_answers: entry.right, time_s: Math.round(entry.time*100)/100})});
+    await fetchLB();
+    return String(row.id);
+  }catch(e){ return null; }
 }
 
 function renderLB(el, meId){
