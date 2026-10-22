@@ -73,9 +73,11 @@ To clear the board, delete the rows in Supabase's Table Editor.
 
 ## Levels
 
-Three levels, picked on the title card: **1 Ward** (the classic maze, 12 seconds a question), **2 ICU** (a loopier maze, quicker doctors, 10 seconds) and **3 Theatre** (an open floor, quickest doctors, 8 seconds). Levels unlock with apples: finishing a level for the first time earns one 🍎, and spending it unlocks the next level (an apple can't be farmed by replaying). Apples and unlocks are kept on that device. Open `?levels=all` to unlock everything, for example on a stall tablet.
+Three levels, all open from the start. Pick one on the title card: **1 Ward** (the classic maze, 12 seconds a question), **2 ICU** (a loopier maze, quicker doctors, 10 seconds) and **3 Theatre** (an open floor, quickest doctors, 8 seconds). After a run, the big button offers the next level (Theatre wraps round to Ward).
 
-Each level has its own rounds board. Scoring is the same on every level, so scores stay comparable. The mazes, doctor speeds (`docBase`, `docStep`, `docMax`) and question timers are in `LEVELS` at the top of `game.js`. Doctor speed is capped below the apple's 5.8 tiles per second, so the last doctor can always be caught.
+**Each level has its own rounds board.** Scoring is the same on every level, so scores stay comparable, but a Ward time is never ranked against a Theatre time. The title card shows the board for the level you have selected; the results card shows the board for the level you just played.
+
+The mazes, doctor speeds (`docBase`, `docStep`, `docMax`) and question timers are in `LEVELS` at the top of `game.js`. Doctor speed is capped below the apple's 5.8 tiles per second, so the last doctor can always be caught.
 
 ## Play counter
 

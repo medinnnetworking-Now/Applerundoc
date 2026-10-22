@@ -374,31 +374,18 @@ function reset(){
 }
 
 /* =====================================================================
-   Levels: picker, unlocks
+   Levels: picker
    ===================================================================== */
-const UNLOCK_KEY = 'rundocrun-unlocked', LEVEL_KEY = 'rundocrun-level';
+const LEVEL_KEY = 'rundocrun-level';
 const qs = new URLSearchParams(location.search);
-let unlocked = 1;
-try{ unlocked = Math.min(LEVELS.length, Math.max(1, parseInt(localStorage.getItem(UNLOCK_KEY)) || 1)); }catch(e){}
-// Apples: finishing a level for the first time earns one; spending it unlocks the next level.
-const APPLES_KEY = 'rundocrun-apples', CLEARED_KEY = 'rundocrun-cleared';
-let apples = 0, cleared = 0;
-try{ apples = Math.max(0, parseInt(localStorage.getItem(APPLES_KEY)) || 0); cleared = Math.max(0, parseInt(localStorage.getItem(CLEARED_KEY)) || 0); }catch(e){}
-cleared = Math.max(cleared, unlocked - 1);          // a level someone has already unlocked means the one before it was cleared
-const keep = (k, v) => { try{ localStorage.setItem(k, String(v)); }catch(e){} };
-if(qs.get('levels') === 'all') unlocked = LEVELS.length;        // open everything, for a stall tablet
 const lvName = n => `Level ${n} · ${LEVELS[n-1].name}`;
-function spendApple(n){ apples = Math.max(0, apples - 1); unlocked = n; keep(APPLES_KEY, apples); keep(UNLOCK_KEY, unlocked); }
 function paintLevels(note){
   document.querySelectorAll('#levels .lv').forEach(b => {
     const n = Number(b.dataset.lv);
-    b.classList.toggle('on', n === level); b.classList.toggle('locked', n > unlocked);
-    b.classList.toggle('afford', n === unlocked + 1 && apples > 0);
-    b.setAttribute('aria-pressed', n === level); b.setAttribute('aria-disabled', n > unlocked);
+    b.classList.toggle('on', n === level);
+    b.setAttribute('aria-pressed', n === level);
   });
-  const nextLocked = LEVELS[unlocked];
-  $('apples').textContent = apples > 0 && nextLocked ? `🍎 ${apples} to spend` : '';
-  $('lvNote').textContent = note || (apples > 0 && nextLocked ? `You have an apple. Tap ${nextLocked.name} to spend it.` : LEVELS[level-1].note);
+  $('lvNote').textContent = note || LEVELS[level-1].note;
   $('lbh1').textContent = `Rounds board · ${lvName(level)}`;
 }
 function setLevel(n){
@@ -412,15 +399,7 @@ function setLevel(n){
   renderLB($('lb1'));
   fetchLB(n).then(() => { if(level === n) renderLB($('lb1')); });
 }
-document.querySelectorAll('#levels .lv').forEach(b => b.addEventListener('click', () => {
-  const n = Number(b.dataset.lv);
-  if(n > unlocked){
-    if(n === unlocked + 1 && apples > 0){ spendApple(n); setLevel(n); paintLevels(`🍎 Spent. ${LEVELS[n-1].name} is unlocked.`); return; }
-    paintLevels(n === unlocked + 1 ? `Finish ${lvName(n-1)} to earn an apple, then spend it to unlock ${LEVELS[n-1].name}.` : `Unlock ${LEVELS[n-2].name} first.`);
-    return;
-  }
-  setLevel(n);
-}));
+document.querySelectorAll('#levels .lv').forEach(b => b.addEventListener('click', () => setLevel(Number(b.dataset.lv))));
 
 const NOT_A_NAME = /^[\d\s\p{P}\p{S}_]+$/u;   // digits or symbols only, e.g. 741852963
 const nameHint = $('nameHint');
@@ -478,7 +457,7 @@ canvas.addEventListener('pointermove', e => {
 document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); steer(b.dataset.d); }));
 $('go').onclick = startGame;
 $('again').onclick = startGame;
-$('nextLv').onclick = () => { const n = level + 1; if(unlocked < n) spendApple(n); setLevel(n); startGame(); };
+$('nextLv').onclick = () => { setLevel(nextLevelNo()); startGame(); };
 $('mcqNext').onclick = () => proceed();
 $('share').onclick = () => shareCard($('share'));
 $('hudShare').onclick = () => shareCard($('hudShare'));
@@ -781,16 +760,13 @@ function proceed(){
 /* =====================================================================
    Win
    ===================================================================== */
-// The big button under the score: play the next level, or spend an apple to unlock it.
-function paintNext(earned){
-  const next = LEVELS[level], btn = $('nextLv'), ru = $('rUnlock');
-  const open = !!next && unlocked >= next.n;
-  const canSpend = !!next && !open && next.n === unlocked + 1 && apples > 0;
-  btn.hidden = !(open || canSpend);
-  btn.textContent = canSpend ? `Spend 🍎 to unlock ${lvName(next.n)}` : (open ? `Next: ${lvName(next.n)} →` : '');
-  $('again').className = btn.hidden ? 'btn' : 'btn alt';
-  ru.hidden = !(earned || !next);
-  ru.textContent = !next ? 'You have cleared every level.' : `🍎 You earned an apple! Spend it to unlock ${next.name}.`;
+// The big button under the score: every level is open, so offer the next one (Theatre wraps round to Ward).
+function nextLevelNo(){ return level < LEVELS.length ? level + 1 : 1; }
+function paintNext(){
+  const n = nextLevelNo(), btn = $('nextLv');
+  btn.hidden = false;
+  btn.textContent = `${level < LEVELS.length ? 'Next' : 'Try'}: ${lvName(n)} →`;
+  $('again').className = 'btn alt';
 }
 function win(){
   state = 'won';
@@ -813,12 +789,8 @@ function win(){
     $('rTimeL').textContent = `Time bonus (${chaseTime.toFixed(1)}s)`; $('rTime').textContent = timeBonus;
     $('rSum').textContent = total;
     const bl = beatLine(finalTotals); $('rBeat').textContent = bl; $('rBeat').hidden = !bl;
-    const next = LEVELS[level];                               // the level after this one, if any
-    let earned = false;
-    if(next && unlocked < next.n && cleared < level){ apples++; earned = true; keep(APPLES_KEY, apples); }
-    if(cleared < level){ cleared = level; keep(CLEARED_KEY, cleared); }
     $('rLevel').textContent = lvName(level);
-    paintNext(earned);
+    paintNext();
     $('lbh2').textContent = `Rounds board · ${lvName(level)}`;
     renderLB($('lb2'), entry.id);
     paintLevels();
@@ -976,12 +948,12 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize,200));
 document.addEventListener('visibilitychange', () => { last = performance.now(); });
 
-if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, setLevel, get apples(){return apples}, get cleared(){return cleared}, LEVELS, get level(){return level}, get unlocked(){return unlocked}, get quiz(){return quiz}, get chase(){return chaseTime}, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
-// Start on the level a challenge link names, otherwise the last one played here (if it is unlocked).
+if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, setLevel, LEVELS, get level(){return level}, get quiz(){return quiz}, get chase(){return chaseTime}, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
+// Start on the level a challenge link names, otherwise the last one played here.
 let startLevel = 1;
 try{ startLevel = parseInt(localStorage.getItem(LEVEL_KEY)) || 1; }catch(e){}
-if(challenge && challenge.lv){ unlocked = Math.max(unlocked, challenge.lv); startLevel = challenge.lv; }
-if(!LEVELS[startLevel-1] || startLevel > unlocked) startLevel = 1;
+if(challenge && challenge.lv) startLevel = challenge.lv;
+if(!LEVELS[startLevel-1]) startLevel = 1;
 resize(); reset(); state = 'title'; setLevel(startLevel);
 fetchStats();
 setInterval(() => { if(titleScr.classList.contains('on')){ fetchLB().then(() => renderLB($('lb1'))); fetchStats(); } }, 15000);
