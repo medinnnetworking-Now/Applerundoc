@@ -14,7 +14,7 @@ Open `index.html` in a browser, or serve the folder:
 npx serve .
 ```
 
-**Controls:** arrow keys or WASD. On phones, swipe anywhere on the maze or use the on-screen pad. In a quiz, tap an option or press 1 to 4 (or A to D).
+**Controls:** arrow keys or WASD. **Exit** in the top bar (tap twice, or press Esc twice) quits a run at any point and returns to the title card without saving a score. On phones, swipe anywhere on the maze or use the on-screen pad. In a quiz, tap an option or press 1 to 4 (or A to D).
 
 ## Rules and scoring
 

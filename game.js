@@ -133,6 +133,24 @@ const sfx = {
 };
 $('mute').onclick = () => { muted = !muted; $('mute').textContent = muted ? '🔇' : '🔊'; };
 
+/* Exit: leave a run at any point and go back to the title card. Two taps, so a stray touch doesn't end a run. */
+const exitBtn = $('exit');
+let exitArmT = null;
+function disarmExit(){ clearTimeout(exitArmT); exitArmT = null; exitBtn.classList.remove('armed'); exitBtn.textContent = '✕ Exit'; }
+function exitGame(){
+  disarmExit();
+  mcqScr.classList.remove('on'); resultScr.classList.remove('on');
+  quiz = null; curDoc = null;
+  reset(); state = 'title';
+  titleScr.classList.add('on');
+  renderLB($('lb1')); fetchLB().then(() => renderLB($('lb1')));
+}
+exitBtn.onclick = () => {
+  if(exitArmT){ exitGame(); return; }
+  exitBtn.classList.add('armed'); exitBtn.textContent = 'Tap again to quit';
+  exitArmT = setTimeout(disarmExit, 2500);
+};
+
 /* =====================================================================
    Sizing
    ===================================================================== */
@@ -276,6 +294,7 @@ function steer(name){
   }
 }
 window.addEventListener('keydown', e => {
+  if(e.code==='Escape' && !exitBtn.hidden){ e.preventDefault(); exitBtn.click(); return; }
   if(state==='quiz' && quiz && !quiz.locked){
     const m = {Digit1:0,Digit2:1,Digit3:2,Digit4:3,KeyA:0,KeyB:1,KeyC:2,KeyD:3}[e.code];
     if(m!==undefined){ e.preventDefault(); answer(m); return; }
@@ -652,6 +671,8 @@ function fx(dt){
   if(Math.abs(liveScore()-shownScore) < .5) shownScore = liveScore();
   scoreEl.textContent = Math.round(shownScore);
   if(state==='quiz') updateQuizHud();
+  const inRun = state!=='title' && state!=='won';
+  if(exitBtn.hidden === inRun){ exitBtn.hidden = !inRun; if(!inRun) disarmExit(); }
 }
 
 /* =====================================================================
