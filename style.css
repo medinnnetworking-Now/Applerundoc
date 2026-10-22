@@ -80,13 +80,14 @@ label.nm{display:block;font-size:13px;font-weight:700;margin:12px 0 5px}
 .btn.alt{background:var(--curtain);box-shadow:0 5px 0 #06201f;font-size:17px}
 .btn.alt:active{box-shadow:0 1px 0 #06201f}
 a.btn{text-align:center;text-decoration:none}
+.promo[hidden],.btn.cta[hidden]{display:none}
 .btn.cta{background:var(--ok);color:var(--ink);box-shadow:0 5px 0 #15803d;animation:nudge 1.6s ease-in-out infinite}
 .btn.cta:active{box-shadow:0 1px 0 #15803d}
 .challenge{margin:0 0 10px;padding:10px 12px;border-radius:12px;background:#ffd166;color:var(--ink);font-size:15px;font-weight:700;line-height:1.35}
 .challenge b{font-family:var(--display);font-weight:400}
-.medico{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;border-radius:12px;
+.promo{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px;padding:10px 12px;border-radius:12px;
   background:var(--scrub);color:var(--curtain);text-decoration:none;font-size:13.5px;font-weight:600}
-.medico .arr{font-family:var(--display);font-size:13px;color:var(--apple);white-space:nowrap}
+.promo .arr{font-family:var(--display);font-size:13px;color:var(--apple);white-space:nowrap}
 .rules{margin:12px 0 0;padding:0;list-style:none;font-size:13.5px;line-height:1.35}
 .rules li{display:flex;gap:9px;padding:5px 0;border-bottom:1.5px dotted rgba(15,63,66,.25)}
 .rules b{flex:none;min-width:74px;font-family:var(--display);font-weight:400;color:var(--apple);font-size:13px}

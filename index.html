@@ -53,8 +53,7 @@
         <label class="nm" for="name">Name for the rounds board</label>
         <input id="name" maxlength="14" autocomplete="off" placeholder="Your name">
         <button class="btn" id="go">Start the chase</button>
-        <a class="medico install" href="https://themedico.app/#install" target="_self">
-          <span>Brought to you by <b>The Medico app</b></span><span class="arr">Get it →</span></a>
+        <a class="promo" id="promoTitle" hidden><span id="promoTitleText"></span><span class="arr">Open →</span></a>
         <div class="lbh">Rounds board</div>
         <ol class="lb" id="lb1"></ol>
       </div>
@@ -97,8 +96,8 @@
           <div><dt id="rTimeL">Time bonus</dt><span class="lead"></span><dd id="rTime">0</dd></div>
           <div class="tot"><dt>Total</dt><span class="lead"></span><dd id="rSum">0</dd></div>
         </dl>
-        <a class="btn cta install" href="https://themedico.app/#install">Get The Medico app</a>
-        <button class="btn alt" id="again">Chase again</button>
+        <a class="btn cta" id="promoBtn" hidden></a>
+        <button class="btn" id="again">Chase again</button>
         <button class="btn alt" id="share">Share my card: beat my time</button>
         <div class="lbh">Rounds board</div>
         <ol class="lb" id="lb2"></ol>

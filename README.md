@@ -72,11 +72,11 @@ The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahu
 
 ## Poster
 
-`poster.html` is an A3 portrait stall poster in the same style, with a QR code to the game. Open it in Chrome and print at 100% with background graphics on, or save as PDF. The QR code is `qr.svg`. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in `poster.html`.
+`poster.html` is an A3 portrait stall poster in the same style, with a QR code to the game. Open it in Chrome and print at 100% with background graphics on, or save as PDF. The QR code is `qr.svg` and points to https://applerundoc.vercel.app/. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in `poster.html` and `GAME_URL` in `game.js`.
 
-## The Medico app funnel
+## Promo link
 
-The title card links to The Medico app, and the result card leads with a **Get The Medico app** button. Neither redirects on its own; players go only if they tap. The link is `INSTALL_URL` in `game.js`.
+`PROMO` at the top of the promo section in `game.js` adds an optional link: a strip on the title card (`title`) and a button on the result card (`button`), both pointing at `url`. With `url` empty, as shipped, neither appears.
 
 ## Debug
 

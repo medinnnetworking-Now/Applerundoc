@@ -102,10 +102,17 @@ function renderLB(el, meId){
 }
 
 /* =====================================================================
-   The Medico app funnel
+   Promo link (optional)
+   Set url to show a link on the title card and a button on the result card. Leave url empty to hide both.
    ===================================================================== */
-const INSTALL_URL = 'https://themedico.app/?utm_source=apple-a-day&utm_medium=stall&utm_campaign=game#install';
-document.querySelectorAll('a.install').forEach(a => { a.href = INSTALL_URL; });
+const PROMO = { url: '', title: '', button: '' };
+const GAME_URL = 'applerundoc.vercel.app';   // printed on the share card
+if(PROMO.url){
+  const t = $('promoTitle'), b = $('promoBtn');
+  t.href = b.href = PROMO.url;
+  $('promoTitleText').textContent = PROMO.title; b.textContent = PROMO.button;
+  t.hidden = b.hidden = false;
+}
 
 /* =====================================================================
    Audio
@@ -422,7 +429,7 @@ async function drawCard(f){
   for(let x = cx + 40, i = 0; x < cx + cw_ - 40; i++){ const w = [2,1,3,2,1][i%5]; g.fillRect(x, cy + ch_ - 44, w, 26); x += w + [2,4,1,3,2][i%5]; }
 
   g.textAlign = 'center'; g.fillStyle = 'rgba(244,250,247,.85)'; g.font = '700 30px Figtree, system-ui, sans-serif';
-  g.fillText('Brought to you by The Medico app · themedico.app', Wc/2, Hc - 18);
+  g.fillText('Play at ' + GAME_URL, Wc/2, Hc - 18);
   return new Promise(r => cv.toBlob(r, 'image/png'));
 }
 async function shareCard(){
