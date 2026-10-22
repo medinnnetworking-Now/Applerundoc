@@ -71,6 +71,16 @@ With those left empty, or if Supabase can't be reached, the board falls back to 
 
 To clear the board, delete the rows in Supabase's Table Editor.
 
+## Levels
+
+Three levels, picked on the title card: **1 Ward** (the classic maze, 12 seconds a question), **2 ICU** (a loopier maze, quicker doctors, 10 seconds) and **3 Theatre** (an open floor, quickest doctors, 8 seconds). Levels 2 and 3 unlock by finishing the one before, and progress is kept on that device. Open `?levels=all` to unlock everything, for example on a stall tablet.
+
+Each level has its own rounds board. Scoring is the same on every level, so scores stay comparable. The mazes, doctor speeds (`docBase`, `docStep`, `docMax`) and question timers are in `LEVELS` at the top of `game.js`. Doctor speed is capped below the apple's 5.8 tiles per second, so the last doctor can always be caught.
+
+## Play counter
+
+The title and result cards show how many players and games there have been. Each game start logs a random device id and the level in `rundocrun_plays` (no names, no IPs), and the page reads only the totals through `rundocrun_stats()`. A device can log at most one game every 20 seconds. Run `supabase/schema.sql` on a fresh project to create all of it.
+
 ## Share card and challenge links
 
 **Share** in the top bar works at any point and pauses the chase while the share sheet is open. Before a run it shares an invite card, mid-run a "Mid-chase 3/10" progress card, and after a run the "Beat my time" card. Every card carries the Instagram handle (`IG_HANDLE` in `game.js`).

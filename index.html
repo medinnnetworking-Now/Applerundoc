@@ -44,21 +44,29 @@
       <div class="band"><span>RundocRun</span><span>Code red: doctor hunt</span></div>
       <div class="cbody">
         <canvas id="hero" class="hero" aria-hidden="true"></canvas>
-        <p class="challenge" id="challenge" hidden><b id="chBy">A friend</b> caught all ten doctors in <b id="chTime">0s</b>. Beat that.</p>
+        <p class="challenge" id="challenge" hidden><b id="chBy">A friend</b> caught all ten doctors in <b id="chTime">0s</b><span id="chLv"></span>. Beat that.</p>
         <h1>An apple a day <em>keeps the doctor away.</em></h1>
         <p class="sub">So go get them. Chase down ten specialists. Each one quizzes you the moment you catch them.</p>
+        <p class="stats" id="stats" hidden></p>
         <ul class="rules">
           <li><b>Catch</b><span>+50 for every doctor.</span></li>
           <li><b>Answer</b><span>+200 for a right answer, up to +100 more for speed. A wrong answer costs 5 seconds.</span></li>
           <li><b>Hurry</b><span>The clock only runs while you chase. A faster chase earns a bigger time bonus.</span></li>
         </ul>
+        <div class="lvhead">Pick a level</div>
+        <div class="levels" id="levels" role="group" aria-label="Level">
+          <button type="button" class="lv" data-lv="1"><b>1</b><span>Ward</span></button>
+          <button type="button" class="lv" data-lv="2"><b>2</b><span>ICU</span></button>
+          <button type="button" class="lv" data-lv="3"><b>3</b><span>Theatre</span></button>
+        </div>
+        <p class="lvnote" id="lvNote"></p>
         <label class="nm" for="name">Name for the rounds board</label>
         <input id="name" maxlength="14" autocomplete="off" placeholder="Your name">
         <p class="hint" id="nameHint" hidden>Use a name with letters in it, like Sid.</p>
         <button class="btn" id="go">Start the chase</button>
         <a class="promo" id="promoTitle" target="_blank" rel="noopener" hidden><span id="promoTitleText"></span><span class="arr">Portfolio →</span></a>
         <a class="promo ig" target="_blank" rel="noopener"><span>Connect and drop new mini game ideas</span><span class="arr">@__itssid__ →</span></a>
-        <div class="lbh">Rounds board</div>
+        <div class="lbh" id="lbh1">Rounds board</div>
         <ol class="lb" id="lb1"></ol>
       </div>
       <div class="barcode"></div>
@@ -90,6 +98,7 @@
       <div class="band"><span>Discharge summary</span><span id="rWho">Apple</span></div>
       <div class="cbody">
         <h2>All doctors caught</h2>
+        <div class="lvtag" id="rLevel"></div>
         <div class="rank" id="rRank">Resident</div>
         <div class="big" id="rTotal">0<small>pts</small></div>
         <p class="challenge" id="rBeat" hidden></p>
@@ -100,11 +109,14 @@
           <div><dt id="rTimeL">Time bonus</dt><span class="lead"></span><dd id="rTime">0</dd></div>
           <div class="tot"><dt>Total</dt><span class="lead"></span><dd id="rSum">0</dd></div>
         </dl>
-        <a class="btn cta" id="promoBtn" target="_blank" rel="noopener" hidden></a>
+        <p class="unlock" id="rUnlock" hidden></p>
+        <button class="btn" id="nextLv" hidden></button>
         <button class="btn" id="again">Chase again</button>
         <button class="btn alt" id="share">Share my card: beat my time</button>
+        <a class="btn cta" id="promoBtn" target="_blank" rel="noopener" hidden></a>
         <a class="promo ig" target="_blank" rel="noopener"><span>Got a mini game idea? Connect</span><span class="arr">@__itssid__ →</span></a>
-        <div class="lbh">Rounds board</div>
+        <p class="stats" id="stats2" hidden></p>
+        <div class="lbh" id="lbh2">Rounds board</div>
         <ol class="lb" id="lb2"></ol>
       </div>
       <div class="barcode"></div>

@@ -44,6 +44,8 @@ The ten doctors: Anatomy, Biochemistry, Physiology, Pathology, Microbiology, Pha
 
 The chase clock only runs while you chase, so thinking about a question costs nothing. Your final score sets your rank: Fresher, Intern, Resident, Consultant, Head of Department.
 
+**Three levels.** Ward is the classic corridor. ICU adds loops and quicker doctors. Theatre is an open floor with sprinting doctors and 8 seconds a question. Finish one to unlock the next, and each level has its own rounds board.
+
 **Share and challenge.** After a run, or at any point mid-chase, players can share a "Beat my time" card with a QR code and a challenge link. Friends who open it see the time they have to beat.
 
 **One shared board.** Scores from every phone land on the same rounds board, so a stall, a hostel or a class can compete live.

@@ -4,29 +4,82 @@
 /* =====================================================================
    Config
    ===================================================================== */
-const MAZE = [
-"###################",
-"#........#........#",
-"#.##.###.#.###.##.#",
-"#.................#",
-"#.##.#.#####.#.##.#",
-"#....#...#...#....#",
-"####.###.#.###.####",
-"####.#.......#.####",
-"####.#.##.##.#.####",
-"#......#...#......#",
-"####.#.#####.#.####",
-"####.#.......#.####",
-"####.#.#####.#.####",
-"#........#........#",
-"#.##.###.#.###.##.#",
-"#..#.........#..#.#",
-"##.#.#.#####.#.#.##",
-"#....#...#...#....#",
-"#.######.#.######.#",
-"#.................#",
-"###################"
+// Three levels. Every maze is 19x21 and keeps the doctors' room in the middle, so spawns work everywhere.
+const LEVELS = [
+  { n:1, name:'Ward',    note:'The classic corridor. Steady doctors, 12 seconds a question.',
+    docBase:4.1, docStep:0.12, docMax:5.2, qTime:12, maze:[
+    "###################",
+    "#........#........#",
+    "#.##.###.#.###.##.#",
+    "#.................#",
+    "#.##.#.#####.#.##.#",
+    "#....#...#...#....#",
+    "####.###.#.###.####",
+    "####.#.......#.####",
+    "####.#.##.##.#.####",
+    "#......#...#......#",
+    "####.#.#####.#.####",
+    "####.#.......#.####",
+    "####.#.#####.#.####",
+    "#........#........#",
+    "#.##.###.#.###.##.#",
+    "#..#.........#..#.#",
+    "##.#.#.#####.#.#.##",
+    "#....#...#...#....#",
+    "#.######.#.######.#",
+    "#.................#",
+    "###################"
+  ] },
+  { n:2, name:'ICU',     note:'More loops to run round. Quicker doctors, 10 seconds a question.',
+    docBase:4.9, docStep:0.10, docMax:5.4, qTime:10, maze:[
+    "###################",
+    "#.................#",
+    "#.##.##.###.##.##.#",
+    "#.................#",
+    "#.#.##.#####.##.#.#",
+    "#.#....#...#....#.#",
+    "####.#.#.#.#.#.####",
+    "####.#.......#.####",
+    "####.#.##.##.#.####",
+    "#......#...#......#",
+    "####.#.#####.#.####",
+    "####.#.......#.####",
+    "####.#.#####.#.####",
+    "#.................#",
+    "#.##.#.#.#.#.#.##.#",
+    "#.#.............#.#",
+    "#.#.##.#.#.#.##.#.#",
+    "#...#....#....#...#",
+    "#.##.#.##.##.#.##.#",
+    "#.................#",
+    "###################"
+  ] },
+  { n:3, name:'Theatre', note:'An open floor and sprinting doctors. 8 seconds a question.',
+    docBase:5.1, docStep:0.10, docMax:5.5, qTime:8, maze:[
+    "###################",
+    "#.................#",
+    "#.#.#.#.#.#.#.#.#.#",
+    "#.................#",
+    "#.#.###.#.#.###.#.#",
+    "#.................#",
+    "##.#.###.#.###.#.##",
+    "####.#.......#.####",
+    "####.#.##.##.#.####",
+    "#......#...#......#",
+    "####.#.#####.#.####",
+    "####.#.......#.####",
+    "####.#.#####.#.####",
+    "#.................#",
+    "#.#.#.#.#.#.#.#.#.#",
+    "#.................#",
+    "##.#.##.#.#.##.#.##",
+    "#....#.......#....#",
+    "#.##.#.##.##.#.##.#",
+    "#.................#",
+    "###################"
+  ] }
 ];
+let level = 1, MAZE = LEVELS[0].maze;
 const W = MAZE[0].length, H = MAZE.length;
 const DIRS = [{x:1,y:0},{x:-1,y:0},{x:0,y:1},{x:0,y:-1}];
 const open = (x,y) => x>=0 && x<W && y>=0 && y<H && MAZE[y][x] !== '#';
@@ -38,9 +91,10 @@ const SPAWNS = [[9,7],[8,9],[10,9],[9,9]];
 const ACTIVE_MAX = 4;
 
 const APPLE_SPEED = 5.8;        // tiles per second
-const DOC_BASE = 4.1, DOC_STEP = 0.12;
+let DOC_BASE = 4.1, DOC_STEP = 0.12, DOC_MAX = 5.2;
 const CATCH_PTS = 50, RIGHT_PTS = 200, SPEED_MAX = 100;
-const Q_TIME = 12, PENALTY = 5;
+let Q_TIME = 12;
+const PENALTY = 5;
 const TIME_BASE = 2000, TIME_RATE = 15;     // time bonus = 2000 - 15 * chaseSeconds
 const RANKS = [[4200,'Head of Department'],[3200,'Consultant'],[2200,'Resident'],[1200,'Intern'],[0,'Fresher']];
 
@@ -71,7 +125,6 @@ try { nameEl.value = localStorage.getItem(NAME_KEY) || ''; } catch(e){}
 const SUPABASE_URL = 'https://xukbrkwtayrjbkttfakm.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_41KBwbN5oT0N76_2YBr7Iw_nUv1gpBs';
 const REST = SUPABASE_URL && SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/';
-let sharedLB = null;
 async function sb(path, opts = {}){
   if(!REST) throw new Error('no board');
   const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
@@ -80,7 +133,8 @@ async function sb(path, opts = {}){
   try{
     const r = await fetch(REST + path, {...opts, headers, signal: ctl.signal, cache: 'no-store'});
     if(!r.ok) throw new Error(r.status);
-    return await r.json();
+    const txt = await r.text();
+    return txt ? JSON.parse(txt) : null;
   } finally { clearTimeout(t); }
 }
 // One random id per device, so the board can show each player's best run once instead of every run.
@@ -92,24 +146,38 @@ let mine = new Set();
 try{ mine = new Set(JSON.parse(localStorage.getItem(MINE_KEY)) || []); }catch(e){}
 const rememberMine = id => { mine.add(id); try{ localStorage.setItem(MINE_KEY, JSON.stringify([...mine].slice(-60))); }catch(e){} };
 const fromRow = r => ({id: String(r.id), name: r.name, score: r.score, right: r.right_answers, time: Number(r.time_s)});
-async function fetchLB(){
-  try{ sharedLB = (await sb('rundocrun_board?select=id,name,score,right_answers,time_s&order=score.desc,time_s.asc&limit=8')).map(fromRow); }
-  catch(e){ sharedLB = null; }
-  return sharedLB;
+const sharedLBs = {};
+async function fetchLB(lv = level){
+  try{ sharedLBs[lv] = (await sb(`rundocrun_board?select=id,name,score,right_answers,time_s&level=eq.${lv}&order=score.desc,time_s.asc&limit=8`)).map(fromRow); }
+  catch(e){ sharedLBs[lv] = null; }
+  return sharedLBs[lv];
 }
 async function submitScore(entry){
   try{
     const [row] = await sb('rundocrun_scores', {method: 'POST', headers: {Prefer: 'return=representation'},
-      body: JSON.stringify({name: entry.name.slice(0,14), score: entry.score, right_answers: entry.right, time_s: Math.round(entry.time*100)/100, player_id: playerId})});
+      body: JSON.stringify({name: entry.name.slice(0,14), score: entry.score, right_answers: entry.right, time_s: Math.round(entry.time*100)/100, player_id: playerId, level: entry.level})});
     rememberMine(String(row.id));
-    await fetchLB();
+    await fetchLB(entry.level);
     return String(row.id);
   }catch(e){ return null; }
 }
 
-function renderLB(el, meId){
+// Every game start is logged (a device id and a level, nothing else) so the page can show how many people have played.
+let stats = null;
+function renderStats(){
+  const ok = stats && Number(stats.games) > 0;
+  const text = ok ? `🍎 ${Number(stats.players).toLocaleString()} ${Number(stats.players) === 1 ? 'player' : 'players'} · ${Number(stats.games).toLocaleString()} ${Number(stats.games) === 1 ? 'game' : 'games'} played` : '';
+  ['stats','stats2'].forEach(id => { const el = $(id); el.textContent = text; el.hidden = !ok; });
+}
+async function fetchStats(){ try{ stats = await sb('rpc/rundocrun_stats', {method: 'POST', body: '{}'}); }catch(e){} renderStats(); }
+async function logPlay(){
+  try{ await sb('rundocrun_plays', {method: 'POST', headers: {Prefer: 'return=minimal'}, body: JSON.stringify({player_id: playerId, level})}); }catch(e){}
+  fetchStats();
+}
+
+function renderLB(el, meId, lv = level){
   el.innerHTML = '';
-  const lb = (sharedLB || loadLB()).slice(0,8);
+  const lb = (sharedLBs[lv] || loadLB().filter(r => (r.level || 1) === lv)).slice(0,8);
   if(!lb.length){
     const li = document.createElement('li'); li.style.background='none';
     const s = document.createElement('span'); s.className='nm'; s.style.cssText='font-weight:500;opacity:.7';
@@ -305,6 +373,41 @@ function reset(){
   clockEl.textContent = '0.00'; scoreEl.textContent = '0';
 }
 
+/* =====================================================================
+   Levels: picker, unlocks
+   ===================================================================== */
+const UNLOCK_KEY = 'rundocrun-unlocked', LEVEL_KEY = 'rundocrun-level';
+const qs = new URLSearchParams(location.search);
+let unlocked = 1;
+try{ unlocked = Math.min(LEVELS.length, Math.max(1, parseInt(localStorage.getItem(UNLOCK_KEY)) || 1)); }catch(e){}
+if(qs.get('levels') === 'all') unlocked = LEVELS.length;        // open everything, for a stall tablet
+const lvName = n => `Level ${n} · ${LEVELS[n-1].name}`;
+function paintLevels(note){
+  document.querySelectorAll('#levels .lv').forEach(b => {
+    const n = Number(b.dataset.lv);
+    b.classList.toggle('on', n === level); b.classList.toggle('locked', n > unlocked);
+    b.setAttribute('aria-pressed', n === level); b.setAttribute('aria-disabled', n > unlocked);
+  });
+  $('lvNote').textContent = note || LEVELS[level-1].note;
+  $('lbh1').textContent = `Rounds board · ${lvName(level)}`;
+}
+function setLevel(n){
+  if(!LEVELS[n-1]) return;
+  const L = LEVELS[n-1];
+  level = n; MAZE = L.maze; DOC_BASE = L.docBase; DOC_STEP = L.docStep; DOC_MAX = L.docMax; Q_TIME = L.qTime;
+  try{ localStorage.setItem(LEVEL_KEY, String(n)); }catch(e){}
+  if(cw) buildBG();
+  if(state === 'title') reset();
+  paintLevels();
+  renderLB($('lb1'));
+  fetchLB(n).then(() => { if(level === n) renderLB($('lb1')); });
+}
+document.querySelectorAll('#levels .lv').forEach(b => b.addEventListener('click', () => {
+  const n = Number(b.dataset.lv);
+  if(n > unlocked){ paintLevels(`Finish ${lvName(n-1)} to unlock ${LEVELS[n-1].name}.`); return; }
+  setLevel(n);
+}));
+
 const NOT_A_NAME = /^[\d\s\p{P}\p{S}_]+$/u;   // digits or symbols only, e.g. 741852963
 const nameHint = $('nameHint');
 nameEl.addEventListener('input', () => { nameHint.hidden = true; });
@@ -314,6 +417,7 @@ function startGame(){
     nameHint.hidden = false; nameEl.focus(); return;
   }
   try{ localStorage.setItem(NAME_KEY, nm); }catch(e){}
+  logPlay();
   titleScr.classList.remove('on'); resultScr.classList.remove('on'); mcqScr.classList.remove('on');
   reset(); state = 'countdown'; cdT = 0; lastCd = 4;
   tone(1,.01,'sine',.001);
@@ -360,6 +464,7 @@ canvas.addEventListener('pointermove', e => {
 document.querySelectorAll('#pad button').forEach(b => b.addEventListener('pointerdown', e => { e.preventDefault(); steer(b.dataset.d); }));
 $('go').onclick = startGame;
 $('again').onclick = startGame;
+$('nextLv').onclick = () => { setLevel(level + 1); startGame(); };
 $('mcqNext').onclick = () => proceed();
 $('share').onclick = () => shareCard($('share'));
 $('hudShare').onclick = () => shareCard($('hudShare'));
@@ -371,15 +476,17 @@ const BASE_URL = location.origin + location.pathname;
 const challenge = (() => {
   const q = new URLSearchParams(location.search), t = parseFloat(q.get('beat'));
   if(!(t > 0 && t < 10000)) return null;
-  return { time: t, by: (q.get('by') || 'A friend').replace(/[\u0000-\u001f<>]/g,'').slice(0,14) };
+  const lv = parseInt(q.get('lv'));
+  return { time: t, by: (q.get('by') || 'A friend').replace(/[\u0000-\u001f<>]/g,'').slice(0,14), lv: LEVELS[lv-1] ? lv : 0 };
 })();
-const challengeURL = f => `${BASE_URL}?beat=${f.time.toFixed(1)}&by=${encodeURIComponent(f.name)}`;
+const challengeURL = f => `${BASE_URL}?beat=${f.time.toFixed(1)}&by=${encodeURIComponent(f.name)}&lv=${f.level}`;
 if(challenge){
   $('challenge').hidden = false;
   $('chBy').textContent = challenge.by; $('chTime').textContent = challenge.time.toFixed(1) + 's';
+  $('chLv').textContent = challenge.lv ? ` on ${LEVELS[challenge.lv-1].name}` : '';
 }
 function beatLine(f){
-  if(!challenge) return '';
+  if(!challenge || (challenge.lv && challenge.lv !== f.level)) return '';
   const d = challenge.time - f.time;
   return d > 0 ? `You beat ${challenge.by} by ${d.toFixed(1)}s` : `${challenge.by} is still ${(-d).toFixed(1)}s ahead. Chase again.`;
 }
@@ -435,7 +542,7 @@ async function drawCard(f){
   g.fillStyle = '#e5383b'; g.fillRect(cx, cy, cw_, 96); g.restore();
   g.fillStyle = 'rgba(7,31,33,.9)'; rrect(g, Wc/2 - 50, cy - 1, 100, 32, 16); g.fill();
   g.fillStyle = '#fff'; g.font = '800 34px Figtree, system-ui, sans-serif';
-  g.textAlign = 'left'; g.fillText('Code red: doctor hunt', cx + 40, cy + 64);
+  g.textAlign = 'left'; g.fillText(f.band || 'Code red: doctor hunt', cx + 40, cy + 64);
   g.textAlign = 'right'; g.fillText(f.name, cx + cw_ - 40, cy + 64);
 
   g.textAlign = 'center';
@@ -479,18 +586,18 @@ function cardSpec(){
   const who = nameEl.value.trim() || 'Apple';
   if(state==='won' && finalTotals){
     const f = finalTotals;
-    return { name: f.name, head: 'BEAT MY TIME', big: f.time.toFixed(1) + 's',
+    return { name: f.name, band: lvName(f.level), head: 'BEAT MY TIME', big: f.time.toFixed(1) + 's',
       sub: `${f.rank} · ${f.total} pts · ${f.right}/${TOTAL} right`,
       blurb: 'You are the apple. Catch ten doctors, answer their questions, beat my time.',
-      text: `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`,
+      text: `I caught all ${TOTAL} doctors in ${f.time.toFixed(1)}s on RundocRun ${lvName(f.level)} (${f.total} pts, ${f.right}/${TOTAL} right). Beat my time:`,
       url: challengeURL(f), file: 'rundocrun-beat-my-time.png' };
   }
   if(IN_RUN.includes(state)){
-    return { name: who, head: 'MID-CHASE', big: `${caughtN}/${TOTAL}`,
+    return { name: who, band: lvName(level), head: 'MID-CHASE', big: `${caughtN}/${TOTAL}`,
       sub: `doctors caught · ${chaseTime.toFixed(1)}s · ${liveScore()} pts`,
       blurb: "I'm mid-chase right now. Catch all ten doctors faster than me.",
       text: `I've caught ${caughtN}/${TOTAL} doctors in ${chaseTime.toFixed(1)}s on RundocRun. Catch all ten faster:`,
-      url: BASE_URL, file: 'rundocrun-mid-chase.png' };
+      url: BASE_URL + (level > 1 ? `?lv=${level}` : ''), file: 'rundocrun-mid-chase.png' };
   }
   return { name: who, head: 'CAN YOU CATCH', big: `ALL ${TOTAL}?`,
     sub: `${TOTAL} doctors · ${TOTAL} questions · 1 clock`,
@@ -564,7 +671,7 @@ function step(h){
     advance(apple, APPLE_SPEED*h, appleChoose);
     const key = apple.tx+','+apple.ty;
     if(key!==lastKey){ lastKey=key; distMap = bfs(apple.tx,apple.ty); }
-    const ap = posOf(apple), speed = DOC_BASE + DOC_STEP*caughtN;
+    const ap = posOf(apple), speed = Math.min(DOC_MAX, DOC_BASE + DOC_STEP*caughtN);
     for(const d of doctors){
       if(!d.alive) continue;
       d.age += h; if(d.inv>0) d.inv -= h;
@@ -665,11 +772,11 @@ function win(){
   const timeBonus = Math.max(0, TIME_BASE - Math.round(chaseTime*TIME_RATE));
   const total = liveScore() + timeBonus;
   const rank = RANKS.find(r => total >= r[0])[1];
-  finalTotals = {total, rank, right: rightN, time: chaseTime, timeBonus, name: nameEl.value.trim() || 'Apple'};
+  finalTotals = {total, rank, right: rightN, time: chaseTime, timeBonus, name: nameEl.value.trim() || 'Apple', level};
   sfx.win();
   if(!reduceMotion) for(let i=0;i<5;i++) setTimeout(()=>burst(3+Math.random()*(W-6), 3+Math.random()*(H-6), SUBJECTS[Math.floor(Math.random()*TOTAL)].color, 22), i*140);
   const lb = loadLB();
-  const entry = {id:Date.now()+'-'+Math.random().toString(36).slice(2,6), name:(nameEl.value.trim()||'Apple'), score:total, right:rightN, time:chaseTime};
+  const entry = {id:Date.now()+'-'+Math.random().toString(36).slice(2,6), name:(nameEl.value.trim()||'Apple'), score:total, right:rightN, time:chaseTime, level};
   lb.push(entry); lb.sort((a,b)=>b.score-a.score || a.time-b.time); saveLB(lb.slice(0,25));
   const sent = submitScore(entry);
   setTimeout(async () => {
@@ -680,11 +787,21 @@ function win(){
     $('rSpeed').textContent = speedPts;
     $('rTimeL').textContent = `Time bonus (${chaseTime.toFixed(1)}s)`; $('rTime').textContent = timeBonus;
     $('rSum').textContent = total;
-    $('rBeat').textContent = beatLine(finalTotals); $('rBeat').hidden = !challenge;
+    const bl = beatLine(finalTotals); $('rBeat').textContent = bl; $('rBeat').hidden = !bl;
+    const next = LEVELS[level];                               // the level after this one, if any
+    let freshUnlock = false;
+    if(next && unlocked < next.n){ unlocked = next.n; freshUnlock = true; try{ localStorage.setItem(UNLOCK_KEY, String(unlocked)); }catch(e){} }
+    $('rLevel').textContent = lvName(level);
+    $('rUnlock').textContent = `Level ${next ? next.n : ''} unlocked: ${next ? next.name : ''}`; $('rUnlock').hidden = !freshUnlock;
+    $('nextLv').hidden = !next; if(next) $('nextLv').textContent = `Next: ${lvName(next.n)} →`;
+    $('again').className = next ? 'btn alt' : 'btn';
+    $('lbh2').textContent = `Rounds board · ${lvName(level)}`;
     renderLB($('lb2'), entry.id);
+    paintLevels();
+    fetchStats();
     resultScr.classList.add('on');
     const sharedId = await sent;
-    renderLB($('lb2'), sharedId || entry.id);
+    renderLB($('lb2'), sharedId || entry.id, finalTotals.level);
   }, 1000);
 }
 
@@ -835,10 +952,15 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize,200));
 document.addEventListener('visibilitychange', () => { last = performance.now(); });
 
-if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
-resize(); reset(); state = 'title'; renderLB($('lb1'));
-fetchLB().then(() => renderLB($('lb1')));
-setInterval(() => { if(titleScr.classList.contains('on')) fetchLB().then(() => renderLB($('lb1'))); }, 15000);
+if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, setLevel, LEVELS, get level(){return level}, get unlocked(){return unlocked}, get quiz(){return quiz}, get chase(){return chaseTime}, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
+// Start on the level a challenge link names, otherwise the last one played here (if it is unlocked).
+let startLevel = 1;
+try{ startLevel = parseInt(localStorage.getItem(LEVEL_KEY)) || 1; }catch(e){}
+if(challenge && challenge.lv){ unlocked = Math.max(unlocked, challenge.lv); startLevel = challenge.lv; }
+if(!LEVELS[startLevel-1] || startLevel > unlocked) startLevel = 1;
+resize(); reset(); state = 'title'; setLevel(startLevel);
+fetchStats();
+setInterval(() => { if(titleScr.classList.contains('on')){ fetchLB().then(() => renderLB($('lb1'))); fetchStats(); } }, 15000);
 if(document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
 requestAnimationFrame(frame);
 })();
