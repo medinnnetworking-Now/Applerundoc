@@ -2,7 +2,7 @@
 
 An apple a day keeps the doctor away, so go get them.
 
-A Pac-Man-style chase where **you are the apple** and ten specialist doctors run from you through a hospital corridor maze. Catch a doctor and they quiz you with an MCQ from their subject. Answer right for points, answer wrong and you pay 5 seconds. Fastest, sharpest chaser tops the rounds board.
+A maze chase where **you are the apple** and ten specialist doctors run from you through a hospital corridor maze. Catch a doctor and they quiz you with an MCQ from their subject. Answer right for points, answer wrong and you pay 5 seconds. Fastest, sharpest chaser tops the rounds board.
 
 No build step. Plain HTML, CSS and JavaScript on a canvas, with Supabase for the shared board.
 
@@ -89,9 +89,16 @@ The title and result cards show how many players and games there have been. Each
 
 The challenge link looks like `?beat=42.4&by=Rahul`. Whoever opens it sees "Rahul caught all ten doctors in 42.4s. Beat that." on the title card, and after their run the result card says whether they beat it.
 
-## Poster
+## Posters
 
-`poster.html` is an A3 portrait stall poster in the same style, with a QR code to the game. Open it in Chrome and print at 100% with background graphics on, or save as PDF. The QR code is `qr.svg` and points to https://applerundoc.vercel.app/. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in `poster.html` and `GAME_URL` in `game.js`.
+Two A3 portrait stall posters in the same style, both with a QR code to the game. Open each in Chrome and print at 100% with background graphics on, or save as PDF.
+
+- `poster.html` is the feature poster: the ten specialists, three levels, the clock, the live leaderboard, challenge cards and ranks.
+- `poster-story.html` is the story poster, "the thought behind the game", told in four panels.
+
+The QR code is `qr.svg` and points to https://applerundoc.vercel.app/. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in both posters and `GAME_URL` in `game.js`.
+
+`hero.html` is a 4:5 social hero card with the campaign copy.
 
 ## Promo link
 

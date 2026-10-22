@@ -12,7 +12,7 @@ An apple a day keeps the doctor away? 🍎
 How quick can you chase 'em all away?
 There's a trick to every doc you chase!
 
-RundocRun is a Pac-Man-style chase where YOU are the apple and ten specialist doctors run from you through the ward. Catch one and they hit you with an MCQ from their own subject. Get it right for points and a speed bonus. Get it wrong and it costs you 5 seconds. Fastest chase tops the rounds board.
+RundocRun is a maze chase where YOU are the apple and ten specialist doctors run from you through the ward. Catch one and they hit you with an MCQ from their own subject. Get it right for points and a speed bonus. Get it wrong and it costs you 5 seconds. Fastest chase tops the rounds board.
 
 Beat my time 👇
 applerundoc.vercel.app
