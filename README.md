@@ -100,7 +100,7 @@ Two A3 portrait stall posters in the same style, both with a QR code to the game
 
 The QR code is `qr.svg` and points to https://applerundoc.vercel.app/. If the game URL changes, regenerate it (for example with `npx qrcode -t svg -o qr.svg <url>`) and update the URL text in both posters and `GAME_URL` in `game.js`.
 
-`hero.html` is a 4:5 social hero card with the campaign copy.
+`hero.html` is a 4:5 social hero card with the campaign copy, and `poster-square.html` is a 1:1 (1080 x 1080) square version with a Play free button and QR code, for the Instagram feed.
 
 ## Promo link
 
