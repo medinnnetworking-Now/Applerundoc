@@ -694,9 +694,26 @@ function catchDoctor(d, dp){
 /* =====================================================================
    MCQ
    ===================================================================== */
+// Questions come from the pool for the level being played. A device remembers which ones it has seen and does not
+// repeat one until every question for that subject and level has been used (then the cycle starts again).
+const SEEN_KEY = 'rundocrun-seen';
+const qid = (k, q) => { let h = 5381; for(let i = 0; i < q.q.length; i++) h = ((h << 5) + h + q.q.charCodeAt(i)) | 0; return k + ':' + (h >>> 0).toString(36); };
+function loadSeen(){ try{ return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)) || []); }catch(e){ return new Set(); } }
+function saveSeen(set){ try{ localStorage.setItem(SEEN_KEY, JSON.stringify([...set].slice(-400))); }catch(e){} }
+function pickQuestion(k){
+  const all = window.QUESTIONS[k];
+  let pool = all.filter(q => (q.l || 1) === level);
+  if(!pool.length) pool = all;                              // a subject with nothing for this level falls back to all of its questions
+  const seen = loadSeen();
+  let fresh = pool.filter(q => !seen.has(qid(k, q)));
+  if(!fresh.length){ pool.forEach(q => seen.delete(qid(k, q))); fresh = pool; }
+  const q = fresh[Math.floor(Math.random()*fresh.length)];
+  seen.add(qid(k, q)); saveSeen(seen);
+  return q;
+}
 function openQuiz(){
-  const sub = SUBJECTS[curDoc.sub], pool = window.QUESTIONS[sub.k];
-  const q = pool[Math.floor(Math.random()*pool.length)];
+  const sub = SUBJECTS[curDoc.sub];
+  const q = pickQuestion(sub.k);
   const idx = shuffle([0,1,2,3]);
   quiz = {q, sub, opts: idx.map(i=>q.o[i]), correct: idx.indexOf(q.a), left: Q_TIME, locked:false};
   $('mcqCount').textContent = `Question ${caughtN} of ${TOTAL}`;
@@ -948,7 +965,7 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize,200));
 document.addEventListener('visibilitychange', () => { last = performance.now(); });
 
-if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, setLevel, LEVELS, get level(){return level}, get quiz(){return quiz}, get chase(){return chaseTime}, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
+if(/[?&]debug\b/.test(location.search)) window.__g = { drawCard, setLevel, pickQuestion, LEVELS, get level(){return level}, get quiz(){return quiz}, get chase(){return chaseTime}, get state(){return state}, get apple(){return apple}, get docs(){return doctors}, open, W, H, steer };
 // Start on the level a challenge link names, otherwise the last one played here.
 let startLevel = 1;
 try{ startLevel = parseInt(localStorage.getItem(LEVEL_KEY)) || 1; }catch(e){}

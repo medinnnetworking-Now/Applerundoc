@@ -168,6 +168,19 @@ dl.rx div.tot{border-top:2.5px solid var(--curtain);margin-top:4px;padding-top:9
 #pad .up{grid-area:up}#pad .left{grid-area:left}#pad .down{grid-area:down}#pad .right{grid-area:right}
 @media (pointer:coarse){#pad{display:flex}}
 
+/* Small phones: keep the top bar on one row (pips, Share, Exit and sound) and the question card on screen. */
+@media (max-width:400px){
+  #pips{gap:3px}.pip{width:12px;height:12px;border-width:2px}
+  #hudShare,#exit{padding:0 7px;font-size:11.5px}
+  .ctl{gap:4px}
+  #mute{width:28px}
+}
+@media (max-height:700px){
+  #mcq .barcode{display:none}
+  #mcq .cbody{padding-bottom:16px}
+  #mcqQ{font-size:17px;margin-top:8px}
+  .opt{padding:9px 11px;margin-top:7px}
+}
 @keyframes nudge{50%{transform:scale(1.03)}}
 @keyframes pop{from{transform:scale(.92) translateY(8px);opacity:0}to{transform:none;opacity:1}}
 @keyframes shake{20%{transform:translateX(-7px)}45%{transform:translateX(6px)}70%{transform:translateX(-4px)}100%{transform:none}}

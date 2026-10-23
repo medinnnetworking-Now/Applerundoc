@@ -28,19 +28,21 @@ npx serve .
 
 The chase clock only runs while you are chasing. It pauses during questions. Four doctors are on the board at once; as you catch one, the next specialist walks out of the ward.
 
-The ten specialists: Anatomy, Biochemistry, Physiology, Pathology, Microbiology, Pharmacology, Community Medicine, Forensic Medicine, ENT, Ophthalmology. Each run draws one question per subject from a pool of two.
+The ten specialists: Anatomy, Biochemistry, Physiology, Pathology, Microbiology, Pharmacology, Community Medicine, Forensic Medicine, ENT, Ophthalmology. Each run draws one question per subject from the pool for the level being played.
 
 Final rank by score: Fresher, Intern, Resident, Consultant, Head of Department.
 
 ## Edit the questions
 
-Open `questions.js`. Each subject holds a pool of questions:
+Open `questions.js`. Each subject holds its questions, tagged with the level they belong to:
 
 ```js
-{ q: "Question text?", o: ["A", "B", "C", "D"], a: 1, w: "One-line explanation." }
+{ l: 2, q: "Question text?", o: ["A", "B", "C", "D"], a: 1, w: "One-line explanation." }
 ```
 
-`a` is the index of the correct option. Options are shuffled every time. Add more questions to a subject and each run picks one at random.
+`l` is the level (1 Ward, 2 ICU, 3 Theatre; leave it out for level 1) and `a` is the index of the correct option. Options are shuffled every time.
+
+There are 150 questions: 5 per subject on each level. Each run draws one per subject from the level being played. **A device remembers which questions it has seen and never repeats one until every question for that subject and level has been used**, then the cycle starts again. More questions means a longer wait before any repeat, so add as many as you like. Keep Theatre questions short, because the timer there is 8 seconds.
 
 ## Tune the difficulty
 
